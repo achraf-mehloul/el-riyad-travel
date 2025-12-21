@@ -13,30 +13,83 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_folder='static', template_folder='.')
 
+# CORS configuration
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["http://localhost:*", "http://127.0.0.1:*"],
+        "origins": ["http://localhost:*", "http://127.0.0.1:*", "https://*.onrender.com"],
         "methods": ["GET", "POST", "PUT", "DELETE"],
         "allow_headers": ["Content-Type"]
     }
 })
 
-# PostgreSQL configuration
+# 🔹 **تحسين: إضافة دعم لملف .env للبيئة المحلية فقط**
+try:
+    # هذه فقط للبيئة المحلية
+    if os.path.exists('.env'):
+        from dotenv import load_dotenv
+        load_dotenv()
+        logger.info("Loaded environment variables from .env file")
+except ImportError:
+    logger.warning("python-dotenv not installed for development")
+
+# 🔹 **التحقق من DATABASE_URL في جميع البيئات**
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not set")
+# معلومات إضافية للتنقيح
+logger.info(f"DATABASE_URL exists: {bool(DATABASE_URL)}")
+if DATABASE_URL:
+    logger.info(f"DATABASE_URL starts with: {DATABASE_URL[:20]}...")
+
+# 🔹 **التحقق من جميع متغيرات البيئة المتاحة**
+env_vars = ["DATABASE_URL", "PORT", "RENDER", "PYTHON_VERSION"]
+for var in env_vars:
+    value = os.getenv(var)
+    logger.info(f"{var}: {value}")
+
+def get_db():
+    """Get database connection with improved error handling"""
+    if not DATABASE_URL:
+        logger.error("DATABASE_URL is not set!")
+        raise RuntimeError("DATABASE_URL is not set in environment variables")
+    
+    try:
+        # Parse the database URL
+        result = urlparse(DATABASE_URL)
+        
+        logger.debug(f"Connecting to database at: {result.hostname}")
+        
+        # For Render PostgreSQL
+        conn = psycopg2.connect(
+            dbname=result.path[1:],  # Remove the leading '/'
+            user=result.username,
+            password=result.password,
+            host=result.hostname,
+            port=result.port or 5432,
+            sslmode="require",  # Important for Render PostgreSQL
+            connect_timeout=10
+        )
+        
+        logger.info("✅ Database connection established successfully")
+        return conn
+        
+    except psycopg2.OperationalError as e:
+        logger.error(f"❌ Database connection failed: {str(e)}")
+        logger.error(f"Connection details: host={result.hostname}, db={result.path[1:]}, user={result.username}")
+        raise
+    except Exception as e:
+        logger.error(f"❌ Unexpected database error: {str(e)}")
+        raise
 
 def init_db():
-    if not DATABASE_URL:
-        logger.error("DATABASE_URL not set, skipping DB initialization")
-        return
-
+    """Initialize database tables"""
     conn = None
     try:
+        logger.info("🔄 Initializing database...")
+        
         conn = get_db()
         c = conn.cursor()
 
+        # Create trips table
         c.execute('''CREATE TABLE IF NOT EXISTS trips (
             id SERIAL PRIMARY KEY,
             date TEXT NOT NULL,
@@ -59,6 +112,7 @@ def init_db():
             room2_status TEXT NOT NULL DEFAULT 'available'
         )''')
 
+        # Create bookings table
         c.execute('''CREATE TABLE IF NOT EXISTS bookings (
             id SERIAL PRIMARY KEY,
             trip_id INTEGER NOT NULL,
@@ -79,33 +133,74 @@ def init_db():
             FOREIGN KEY (trip_id) REFERENCES trips (id) ON DELETE CASCADE
         )''')
 
+        # Check existing tables
         c.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
         tables = c.fetchall()
-        logger.debug(f"Tables in database: {tables}")
+        
+        logger.info(f"✅ Database initialized successfully. Tables: {[table[0] for table in tables]}")
+        
+        # Insert sample data if tables are empty (for testing)
+        c.execute("SELECT COUNT(*) FROM trips")
+        trip_count = c.fetchone()[0]
+        
+        if trip_count == 0:
+            logger.info("📝 Inserting sample trip data...")
+            sample_trip = (
+                '2024-12-25', 'السعودية', 'https://example.com/logo1.png',
+                'فندق مكة', 'https://example.com/hotel1.png', '200m من الحرم',
+                'الجزائر → جدة → مكة → المدينة → الجزائر', 15,
+                'عمرة', 'الجزائر', 5000, 4000, 3000, 2000
+            )
+            
+            c.execute('''INSERT INTO trips 
+                (date, airline, airline_logo, hotel, hotel_logo, hotel_distance, 
+                 route, duration, type, state, room5_price, room4_price, room3_price, room2_price)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''', sample_trip)
+            
+            logger.info("✅ Sample data inserted")
 
         conn.commit()
+        
     except Exception as e:
-        logger.error(f"Error initializing database: {str(e)}")
-        raise
+        logger.error(f"❌ Error initializing database: {str(e)}")
+        # Don't raise error, just log it - app should still start
     finally:
         if conn:
             conn.close()
 
+# 🔹 **استدعاء init_db فقط إذا كانت DATABASE_URL موجودة**
+if DATABASE_URL:
+    try:
+        init_db()
+    except Exception as e:
+        logger.warning(f"⚠️ Database initialization skipped: {str(e)}")
+else:
+    logger.warning("⚠️ DATABASE_URL not set, skipping database initialization")
 
-def get_db():
-    result = urlparse(DATABASE_URL)
-    return psycopg2.connect(
-        dbname=result.path[1:],
-        user=result.username,
-        password=result.password,
-        host=result.hostname,
-        port=result.port or 5432,
-        sslmode="require"
-    )
-
-
-# Initialize database
-init_db()
+# 🔹 **إضافة route للتحقق من حالة التطبيق**
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    try:
+        if DATABASE_URL:
+            conn = get_db()
+            conn.close()
+            db_status = "connected"
+        else:
+            db_status = "not_configured"
+        
+        return jsonify({
+            "status": "healthy",
+            "database": db_status,
+            "timestamp": datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "unhealthy",
+            "database": "connection_failed",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }), 500
 
 @app.route('/')
 def serve_index():
@@ -136,6 +231,9 @@ def serve_dashboard():
 
 @app.route('/api/trips', methods=['GET'])
 def get_all_trips():
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         conn = get_db()
@@ -204,6 +302,9 @@ def get_all_trips():
 
 @app.route('/api/trips/<int:trip_id>', methods=['GET'])
 def get_trip(trip_id):
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         conn = get_db()
@@ -255,6 +356,9 @@ def get_trip(trip_id):
 
 @app.route('/api/trips', methods=['POST'])
 def create_trip():
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         data = request.get_json()
@@ -320,6 +424,9 @@ def create_trip():
 
 @app.route('/api/trips/<int:trip_id>', methods=['DELETE'])
 def delete_trip(trip_id):
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         conn = get_db()
@@ -345,6 +452,9 @@ def delete_trip(trip_id):
 
 @app.route('/api/trips/<int:trip_id>', methods=['PUT'])
 def update_trip(trip_id):
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         data = request.get_json()
@@ -417,6 +527,9 @@ def update_trip(trip_id):
 
 @app.route('/api/trips/<int:trip_id>/status', methods=['PUT'])
 def update_trip_status(trip_id):
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         data = request.get_json()
@@ -459,6 +572,9 @@ def update_trip_status(trip_id):
 
 @app.route('/api/bookings', methods=['POST'])
 def create_booking():
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         data = request.get_json()
@@ -535,9 +651,11 @@ def create_booking():
         if conn:
             conn.close()
 
-
 @app.route('/api/bookings/<int:booking_id>', methods=['PUT'])
 def update_booking(booking_id):
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         data = request.get_json()
@@ -570,6 +688,9 @@ def update_booking(booking_id):
 
 @app.route('/api/bookings/<int:booking_id>', methods=['DELETE'])
 def delete_booking(booking_id):
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         conn = get_db()
@@ -591,8 +712,12 @@ def delete_booking(booking_id):
     finally:
         if conn:
             conn.close()
+
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         conn = get_db()
@@ -635,9 +760,11 @@ def get_stats():
         if conn:
             conn.close()
 
-
 @app.route('/api/bookings', methods=['GET'])
 def get_bookings():
+    if not DATABASE_URL:
+        return jsonify({'error': 'Database not configured'}), 503
+    
     conn = None
     try:
         conn = get_db()
@@ -685,4 +812,11 @@ def get_bookings():
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    logger.info(f"🚀 Starting Flask app on port {port}")
+    logger.info(f"🔗 DATABASE_URL configured: {bool(DATABASE_URL)}")
+    
+    # Additional debug info
+    logger.info(f"Current working directory: {os.getcwd()}")
+    logger.info(f"Files in directory: {os.listdir('.')}")
+    
+    app.run(host="0.0.0.0", port=port, debug=True)

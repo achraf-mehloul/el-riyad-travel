@@ -22,14 +22,20 @@ CORS(app, resources={
 })
 
 # PostgreSQL configuration
-DATABASE_URL = os.environ.get('DATABASE_URL')
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
 
 def init_db():
+    if not DATABASE_URL:
+        logger.error("DATABASE_URL not set, skipping DB initialization")
+        return
+
     conn = None
     try:
         conn = get_db()
         c = conn.cursor()
-
 
         c.execute('''CREATE TABLE IF NOT EXISTS trips (
             id SERIAL PRIMARY KEY,
@@ -85,23 +91,18 @@ def init_db():
         if conn:
             conn.close()
 
+
 def get_db():
-    try:
-        # Parse database URL
-        result = urlparse(DATABASE_URL)
-        conn = psycopg2.connect(
-            database=result.path[1:],
-            user=result.username,
-            password=result.password,
-            host=result.hostname,
-            port=result.port,
-            sslmode="require"
-        )
-        conn.set_session(autocommit=False)
-        return conn
-    except Exception as e:
-        logger.error(f"Error connecting to database: {str(e)}")
-        raise
+    result = urlparse(DATABASE_URL)
+    return psycopg2.connect(
+        dbname=result.path[1:],
+        user=result.username,
+        password=result.password,
+        host=result.hostname,
+        port=result.port or 5432,
+        sslmode="require"
+    )
+
 
 # Initialize database
 init_db()

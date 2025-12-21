@@ -95,6 +95,7 @@ def get_db():
             password=result.password,
             host=result.hostname,
             port=result.port
+            sslmode="require"
         )
         conn.set_session(autocommit=False)
         return conn

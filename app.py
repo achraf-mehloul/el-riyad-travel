@@ -22,7 +22,7 @@ CORS(app, resources={
 })
 
 # PostgreSQL configuration
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://umrah_admin:9GDKSIxeUrhQLLI3yR3HpMLAO6jT2tHW@dpg-d1v54gh5pdvs73ct6s6g-a.oregon-postgres.render.com/umrah_mv09')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def init_db():
     conn = None

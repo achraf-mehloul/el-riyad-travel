@@ -211,13 +211,11 @@
         }
 
         .hotel-distance {
-        font-size: 0.85rem;
-        color: #aaa;
-        margin-top: 3px;
-        display: block;
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-top: 3px;
+            display: block;
         }
-
-
 
         .btn {
             display: inline-block;
@@ -246,6 +244,25 @@
         .btn-book {
             font-size: 0.9rem;
             padding: 8px 15px;
+        }
+
+        .btn-camera, .btn-upload {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid var(--primary);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            margin: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-camera:hover, .btn-upload:hover {
+            background: var(--primary);
         }
 
         .status-badge {
@@ -468,6 +485,44 @@
             border: none;
         }
 
+        .file-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            display: none;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-upload-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .camera-preview {
+            display: none;
+            margin-top: 10px;
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+        }
+
+        .camera-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .back-to-home {
             position: fixed;
             bottom: 20px;
@@ -534,6 +589,10 @@
 
             .form-group.full-width {
                 grid-column: span 1;
+            }
+
+            .file-upload-actions {
+                flex-direction: column;
             }
         }
 
@@ -639,7 +698,7 @@
                 <h2>حجز رحلة العمرة</h2>
                 <p id="bookingTripInfo">الرجاء تعبئة جميع البيانات المطلوبة</p>
             </div>
-            <form id="bookingForm" class="booking-form">
+            <form id="bookingForm" class="booking-form" enctype="multipart/form-data">
                 <input type="hidden" id="tripId" name="tripId">
                 
                 <div class="form-group">
@@ -660,6 +719,11 @@
                 <div class="form-group">
                     <label for="phone">رقم الهاتف</label>
                     <input type="tel" id="phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="whatsappNumber">رقم الهاتف (للاتصال والواتساب)</label>
+                    <input type="tel" id="whatsappNumber" name="whatsappNumber" placeholder="اختياري">
                 </div>
                 
                 <div class="form-group">
@@ -747,6 +811,31 @@
                     <input type="date" id="passportExpiryDate" name="passportExpiryDate" required>
                 </div>
                 
+                <div class="form-group full-width">
+                    <label>صورة جواز السفر</label>
+                    <div class="file-upload-actions">
+                        <button type="button" class="btn-camera" id="cameraBtn">
+                            <i class="fas fa-camera"></i> التقاط صورة
+                        </button>
+                        <button type="button" class="btn-upload" id="uploadBtn">
+                            <i class="fas fa-upload"></i> رفع صورة
+                        </button>
+                        <input type="file" id="passportFile" name="passportFile" accept="image/*,.pdf" style="display: none;">
+                    </div>
+                    <div class="camera-preview" id="cameraPreview">
+                        <video id="cameraVideo" autoplay></video>
+                    </div>
+                    <div class="file-preview" id="filePreview">
+                        <img id="previewImage" src="" alt="معاينة الصورة">
+                    </div>
+                    <input type="hidden" id="passportScan" name="passportScan">
+                </div>
+                
+                <div class="form-group">
+                    <label for="facebookProfile">حساب الفيسبوك (اسم المستخدم أو الرابط)</label>
+                    <input type="text" id="facebookProfile" name="facebookProfile" placeholder="اختياري">
+                </div>
+                
                 <div class="form-group">
                     <label for="umrahType">نوع العمرة</label>
                     <select id="umrahType" name="umrahType" required>
@@ -766,6 +855,45 @@
                         <option value="4">غرفة رباعية</option>
                         <option value="3">غرفة ثلاثية</option>
                         <option value="2">غرفة ثنائية</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="maritalStatus">الحالة الاجتماعية</label>
+                    <select id="maritalStatus" name="maritalStatus" required>
+                        <option value="">اختر الحالة الاجتماعية</option>
+                        <option value="single">أعزب</option>
+                        <option value="married">متزوج</option>
+                        <option value="divorced">مطلق</option>
+                        <option value="widowed">أرمل</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fatherName">اسم الأب</label>
+                    <input type="text" id="fatherName" name="fatherName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="grandfatherName">اسم الجد</label>
+                    <input type="text" id="grandfatherName" name="grandfatherName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="jobTitle">المهنة/العمل</label>
+                    <input type="text" id="jobTitle" name="jobTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="educationLevel">المستوى الدراسي</label>
+                    <select id="educationLevel" name="educationLevel" required>
+                        <option value="">اختر المستوى الدراسي</option>
+                        <option value="primary">ابتدائي</option>
+                        <option value="middle">متوسط</option>
+                        <option value="secondary">ثانوي</option>
+                        <option value="university">جامعي</option>
+                        <option value="postgraduate">دراسات عليا</option>
+                        <option value="other">أخرى</option>
                     </select>
                 </div>
                 
@@ -801,11 +929,20 @@
             const adminAccess = document.getElementById('adminAccess');
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toastMessage');
+            const cameraBtn = document.getElementById('cameraBtn');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const passportFile = document.getElementById('passportFile');
+            const cameraPreview = document.getElementById('cameraPreview');
+            const cameraVideo = document.getElementById('cameraVideo');
+            const filePreview = document.getElementById('filePreview');
+            const previewImage = document.getElementById('previewImage');
     
             let currentFilter = 'all';
             let currentState = 'all';
             let clickCount = 0;
             let clickTimer = null;
+            let cameraStream = null;
+            let passportPhoto = null;
     
             const API_BASE_URL = window.location.origin + "/api";
             
@@ -867,7 +1004,8 @@
                     'algiers': 'الجزائر',
                     'oran': 'سطيف',
                     'constantine': 'شلف',
-                    'batna': 'تيسمسيلت'
+                    'batna': 'تيسمسيلت',
+                    'all': 'كل الفروع'
                 };
                 return states[state] || state;
             }
@@ -881,9 +1019,119 @@
                     'قصر': 'kas.png',
                     'القبلة': 'kibla.png',
                     'الماسة': 'masa.png',
-                    'المختارة': 'mokhtara.png'
+                    'المختارة': 'mokhtara.png',
+                    'الأيام بكة الصلاح سابقا': 'backa-el-salah.png'
                 };
                 return hotelLogos[hotel] || '';
+            }
+    
+            async function startCamera() {
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        } 
+                    });
+                    
+                    cameraVideo.srcObject = cameraStream;
+                    cameraPreview.style.display = 'block';
+                    cameraBtn.innerHTML = '<i class="fas fa-stop"></i> إيقاف الكاميرا';
+                    cameraBtn.onclick = stopCamera;
+                    
+                    // زر التقاط الصورة
+                    const captureBtn = document.createElement('button');
+                    captureBtn.className = 'btn-camera';
+                    captureBtn.innerHTML = '<i class="fas fa-camera"></i> التقاط';
+                    captureBtn.onclick = capturePhoto;
+                    
+                    if (!document.getElementById('captureBtn')) {
+                        captureBtn.id = 'captureBtn';
+                        cameraPreview.parentNode.insertBefore(captureBtn, cameraPreview.nextSibling);
+                    }
+                    
+                } catch (error) {
+                    showToast('لا يمكن الوصول إلى الكاميرا. الرجاء التحقق من الصلاحيات.', false);
+                    console.error("Camera error: ", error);
+                }
+            }
+    
+            function stopCamera() {
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                    cameraPreview.style.display = 'none';
+                    cameraBtn.innerHTML = '<i class="fas fa-camera"></i> التقاط صورة';
+                    cameraBtn.onclick = startCamera;
+                    
+                    const captureBtn = document.getElementById('captureBtn');
+                    if (captureBtn) {
+                        captureBtn.remove();
+                    }
+                }
+            }
+    
+            function capturePhoto() {
+                if (!cameraStream) return;
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = cameraVideo.videoWidth;
+                canvas.height = cameraVideo.videoHeight;
+                
+                const context = canvas.getContext('2d');
+                context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+                
+                // تحويل الصورة إلى blob
+                canvas.toBlob(function(blob) {
+                    passportPhoto = blob;
+                    
+                    // عرض معاينة الصورة
+                    const url = URL.createObjectURL(blob);
+                    previewImage.src = url;
+                    filePreview.style.display = 'block';
+                    
+                    showToast('تم التقاط الصورة بنجاح');
+                    
+                    // إيقاف الكاميرا بعد الالتقاط
+                    stopCamera();
+                }, 'image/jpeg', 0.8);
+            }
+    
+            function handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // التحقق من نوع الملف
+                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('نوع الملف غير مدعوم. الرجاء رفع صورة (JPEG, PNG) أو ملف PDF', false);
+                    return;
+                }
+                
+                // التحقق من حجم الملف (5MB كحد أقصى)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('حجم الملف كبير جداً. الحد الأقصى 5MB', false);
+                    return;
+                }
+                
+                passportPhoto = file;
+                
+                if (file.type.includes('image')) {
+                    // عرض معاينة الصورة
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        filePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // للملفات PDF نعرض أيقونة
+                    previewImage.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xNCAySDZjLTEuMSAwLTIgLjktMiAydjE2YzAgMS4xLjkgMiAyLjAyIDJIMThjMS4xIDAgMi0uOSAyLTJWOEgxNHpNMTggMjBINlY0aDd2NWg1djExek04IDE1aDh2Mkg4em0wLTRoOHYySDh6bTAtNGg4djJIOHoiLz48L3N2Zz4=';
+                    filePreview.style.display = 'block';
+                }
+                
+                showToast('تم رفع الملف بنجاح');
             }
     
             function openBookingModal(tripId) {
@@ -898,6 +1146,14 @@
                         document.getElementById('tripId').value = tripId;
                         bookingTripInfo.textContent = `رحلة عمرة مع ${trip.airline} في ${formatDate(trip.date)} لمدة ${trip.duration} أيام`;
                         bookingForm.reset();
+                        filePreview.style.display = 'none';
+                        cameraPreview.style.display = 'none';
+                        passportPhoto = null;
+                        
+                        if (cameraStream) {
+                            stopCamera();
+                        }
+                        
                         bookingModal.style.display = 'block';
                         document.body.style.overflow = 'hidden';
                     })
@@ -910,6 +1166,10 @@
             function closeBookingModal() {
                 bookingModal.style.display = 'none';
                 document.body.style.overflow = 'auto';
+                
+                if (cameraStream) {
+                    stopCamera();
+                }
             }
     
             async function handleAdminAccess() {
@@ -1056,13 +1316,13 @@
                 searchInput.addEventListener('input', function() {
                     const searchTerm = this.value.toLowerCase();
                     const rows = tripsTable.getElementsByTagName('tr');
-                    
+
                     for (let row of rows) {
                         const text = row.textContent.toLowerCase();
                         row.style.display = text.includes(searchTerm) ? '' : 'none';
                     }
                 });
-                
+
                 filterButtons.forEach(btn => {
                     btn.addEventListener('click', function() {
                         filterButtons.forEach(b => b.classList.remove('active'));
@@ -1071,7 +1331,7 @@
                         renderTripsTable();
                     });
                 });
-                
+
                 stateTabs.forEach(tab => {
                     tab.addEventListener('click', function() {
                         stateTabs.forEach(t => t.classList.remove('active'));
@@ -1080,64 +1340,83 @@
                         renderTripsTable();
                     });
                 });
-                
+
                 closeModal.addEventListener('click', closeBookingModal);
-                
                 adminAccess.addEventListener('click', handleAdminAccess);
-                
-                bookingForm.addEventListener('submit', function(e) {
+                cameraBtn.addEventListener('click', startCamera);
+                uploadBtn.addEventListener('click', () => passportFile.click());
+                passportFile.addEventListener('change', handleFileUpload);
+
+                bookingForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
-                    
-                    const formData = {
-                        tripId: document.getElementById('tripId').value,
-                        firstName: document.getElementById('firstName').value,
-                        lastName: document.getElementById('lastName').value,
-                        email: document.getElementById('email').value,
-                        phone: document.getElementById('phone').value,
-                        birthDate: document.getElementById('birthDate').value,
-                        birthPlace: document.getElementById('birthPlace').value,
-                        passportNumber: document.getElementById('passportNumber').value,
-                        passportIssueDate: document.getElementById('passportIssueDate').value,
-                        passportExpiryDate: document.getElementById('passportExpiryDate').value,
-                        umrahType: document.getElementById('umrahType').value,
-                        roomType: document.getElementById('roomType').value,
-                        notes: document.getElementById('notes').value
-                    };
-                    
-                    fetch(`${API_BASE_URL}/bookings`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(formData)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => { throw new Error(err.error || 'Request failed'); });
+
+                    const maritalStatus = document.getElementById('maritalStatus').value;
+
+                    if (!maritalStatus) {
+                        showToast('الرجاء اختيار الحالة الاجتماعية', false);
+                        return;
+                    }
+
+                    // إنشاء FormData لإرسال البيانات والملفات
+                    const formData = new FormData();
+                    formData.append('tripId', document.getElementById('tripId').value);
+                    formData.append('firstName', document.getElementById('firstName').value);
+                    formData.append('lastName', document.getElementById('lastName').value);
+                    formData.append('email', document.getElementById('email').value);
+                    formData.append('phone', document.getElementById('phone').value);
+                    formData.append('whatsappNumber', document.getElementById('whatsappNumber').value);
+                    formData.append('birthDate', document.getElementById('birthDate').value);
+                    formData.append('birthPlace', document.getElementById('birthPlace').value);
+                    formData.append('passportNumber', document.getElementById('passportNumber').value);
+                    formData.append('passportIssueDate', document.getElementById('passportIssueDate').value);
+                    formData.append('passportExpiryDate', document.getElementById('passportExpiryDate').value);
+                    formData.append('umrahType', document.getElementById('umrahType').value);
+                    formData.append('roomType', document.getElementById('roomType').value);
+                    formData.append('maritalStatus', maritalStatus);
+                    formData.append('fatherName', document.getElementById('fatherName').value);
+                    formData.append('grandfatherName', document.getElementById('grandfatherName').value);
+                    formData.append('jobTitle', document.getElementById('jobTitle').value);
+                    formData.append('educationLevel', document.getElementById('educationLevel').value);
+                    formData.append('facebookProfile', document.getElementById('facebookProfile').value);
+                    formData.append('notes', document.getElementById('notes').value);
+
+                    // إضافة ملف جواز السفر إذا كان موجوداً
+                    if (passportPhoto) {
+                        if (passportPhoto instanceof Blob) {
+                            formData.append('passportFile', passportPhoto, 'passport.jpg');
+                        } else {
+                            formData.append('passportFile', passportPhoto);
                         }
-                        return response.json();
-                    })
-                    .then(data => {
+                    }
+
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/bookings`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Failed to create booking');
+                        }
+                        
                         if (data.message) {
                             closeBookingModal();
                             showToast('تم إرسال طلب الحجز بنجاح، سنقوم بالتواصل معك قريبا');
-                        } else if (data.error) {
-                            showToast(data.error, false);
                         }
-                    })
-                    .catch(error => {
-                        showToast('حدث خطأ أثناء إنشاء الحجز', false);
-                        console.error("Error creating booking: ", error);
-                    });
+                    } catch (error) {
+                        showToast(error.message || 'حدث خطأ أثناء إنشاء الحجز', false);
+                    }
                 });
-                
+
                 window.addEventListener('click', function(e) {
                     if (e.target === bookingModal) {
                         closeBookingModal();
                     }
                 });
             }
-    
+
             init();
         });
     </script>

@@ -1,0 +1,2596 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | إدارة العمرة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-dark: #1B5E20;
+            --accent: #4CAF50;
+            --white: #FFFFFF;
+            --dark: #1A1A1A;
+            --light-dark: #2D2D2D;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--white);
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .floating-logo {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .floating-logo:hover {
+            transform: scale(1.05);
+        }
+
+        .floating-logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            transition: all 0.3s;
+            box-shadow: var(--card-shadow);
+        }
+
+        .floating-logo:hover img {
+            transform: scale(1.1);
+        }
+
+        .floating-logo span {
+            font-weight: bold;
+            color: var(--white);
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .floating-logo span::after {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .floating-logo:hover span::after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 100px auto 40px;
+            padding: 30px;
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(46, 125, 50, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--white);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        h1::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 3px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--card-shadow);
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(46, 125, 50, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn i {
+            font-size: 1rem;
+        }
+
+        .btn-admin {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-approve {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-reject {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        .btn-delete {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff5252;
+        }
+
+        .btn-edit {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .btn-restore {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .btn-permanent {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            background: rgba(45, 45, 45, 0.7);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        .admin-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .admin-nav-btn i {
+            font-size: 1rem;
+        }
+
+        .admin-nav-btn.active {
+            background: var(--gradient);
+        }
+
+        .admin-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(45, 45, 45, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            padding-right: 45px;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn i {
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: var(--gradient);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .bookings-list, .trips-list, .trash-list {
+            margin-top: 20px;
+        }
+
+        .booking-item, .trip-item, .trash-item {
+            background: rgba(45, 45, 45, 0.7);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: var(--card-shadow);
+        }
+
+        .booking-item:hover, .trip-item:hover, .trash-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .booking-item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .booking-item-title {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .booking-item-date {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .booking-item-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .booking-detail {
+            margin-bottom: 8px;
+        }
+
+        .booking-detail label {
+            display: block;
+            color: #aaa;
+            font-size: 0.85rem;
+            margin-bottom: 3px;
+        }
+
+        .booking-detail span {
+            color: white;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+        }
+
+        .status-approved {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .status-rejected {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
+        .status-cancelled {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9E9E9E;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .trip-info {
+            flex: 1;
+        }
+
+        .trip-info h4 {
+            color: var(--accent);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trip-info h4 img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .trip-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .trip-details span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .trip-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .add-trip-form {
+            margin-top: 20px;
+            background: rgba(45, 45, 45, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: var(--card-shadow);
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .add-trip-form h4 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-size: 1.3rem;
+            text-align: center;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .add-trip-form h4::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: var(--gradient);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Tajawal', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-submit {
+            padding: 12px 30px;
+            font-size: 1rem;
+            border: none;
+        }
+
+        .status-controls {
+            background: rgba(45, 45, 45, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .trip-selector {
+            margin-bottom: 20px;
+        }
+
+        .trip-selector label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .trip-selector select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .trip-selector select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+        }
+
+        .room-status-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .room-control {
+            background: rgba(46, 125, 50, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            transition: all 0.3s;
+        }
+
+        .room-control:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .room-control h4 {
+            margin-bottom: 15px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .room-control h4 i {
+            font-size: 1.1rem;
+        }
+
+        .room-control select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .room-control select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+        }
+
+        #saveStatusBtn {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(45, 45, 45, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin: 10px 0;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card .stat-label {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            background: rgba(45, 45, 45, 0.7);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            text-align: center;
+            font-size: 1.2rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+
+        .toggle-charts-btn {
+            margin: 20px auto;
+            display: block;
+        }
+
+        .back-to-home {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--gradient);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            font-size: 1.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(45, 45, 45, 0.5);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .empty-state h4 {
+            color: #aaa;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #777;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .branch-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .branch-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .branch-checkbox input {
+            width: auto;
+        }
+
+        .branch-checkbox label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            display: none;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-upload-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                padding: 20px;
+                margin: 90px auto 30px;
+            }
+
+            .room-status-controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 80px auto 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .admin-nav {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .admin-nav-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .filter-options {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .booking-item-details {
+                grid-template-columns: 1fr;
+            }
+
+            .trip-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .trip-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .room-status-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                margin-top: 70px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .floating-logo {
+                top: 10px;
+                right: 10px;
+            }
+
+            .floating-logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .floating-logo span {
+                font-size: 1rem;
+            }
+
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 2rem;
+            }
+
+            .admin-actions {
+                justify-content: center;
+            }
+
+            .toast {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-logo">
+        <img src="logo.jpg" alt="شعار الوكالة">
+        <span>لوحة التحكم</span>
+    </div>
+
+    <div class="container">
+        <h1>إدارة رحلات العمرة</h1>
+        
+        <div class="admin-nav">
+            <button class="admin-nav-btn active" data-section="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                لوحة التحكم
+            </button>
+            <button class="admin-nav-btn" data-section="bookings">
+                <i class="fas fa-calendar-check"></i>
+                الحجوزات
+            </button>
+            <button class="admin-nav-btn" data-section="trips">
+                <i class="fas fa-plane"></i>
+                الرحلات
+            </button>
+            <button class="admin-nav-btn" data-section="status">
+                <i class="fas fa-bed"></i>
+                حالات الغرف
+            </button>
+            <button class="admin-nav-btn" data-section="trash">
+                <i class="fas fa-trash"></i>
+                سلة المهملات
+            </button>
+        </div>
+        
+        <div id="dashboardSection" class="admin-section active">
+            <h3>إحصائيات الحجوزات</h3>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3><i class="fas fa-calendar"></i> إجمالي الحجوزات</h3>
+                    <div class="stat-value" id="totalBookings">0</div>
+                    <div class="stat-label">حجز</div>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-clock"></i> الحجوزات المعلقة</h3>
+                    <div class="stat-value" id="pendingBookings">0</div>
+                    <div class="stat-label">حجز</div>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-check-circle"></i> الحجوزات المؤكدة</h3>
+                    <div class="stat-value" id="approvedBookings">0</div>
+                    <div class="stat-label">حجز</div>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-plane"></i> إجمالي الرحلات</h3>
+                    <div class="stat-value" id="totalTrips">0</div>
+                    <div class="stat-label">رحلة</div>
+                </div>
+            </div>
+            
+            <button id="toggleChartsBtn" class="btn toggle-charts-btn">
+                <i class="fas fa-chart-bar"></i>
+                عرض الإحصائيات التفصيلية
+            </button>
+            
+            <div class="chart-container" id="stateChartContainer">
+                <h3><i class="fas fa-map-marked-alt"></i> الحجوزات حسب الولاية</h3>
+                <div class="chart-wrapper">
+                    <canvas id="bookingsByStateChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container" id="typeChartContainer">
+                <h3><i class="fas fa-star"></i> الحجوزات حسب نوع العمرة</h3>
+                <div class="chart-wrapper">
+                    <canvas id="bookingsByTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div id="bookingsSection" class="admin-section">
+            <h3><i class="fas fa-calendar-check"></i> إدارة الحجوزات</h3>
+            <div class="filter-bar">
+                <div class="search-box">
+                    <input type="text" id="bookingSearch" placeholder="ابحث عن حجز...">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="filter-options">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-list"></i> الكل
+                    </button>
+                    <button class="filter-btn" data-filter="pending">
+                        <i class="fas fa-clock"></i> معلقة
+                    </button>
+                    <button class="filter-btn" data-filter="approved">
+                        <i class="fas fa-check"></i> مؤكدة
+                    </button>
+                    <button class="filter-btn" data-filter="rejected">
+                        <i class="fas fa-times"></i> مرفوضة
+                    </button>
+                    <select id="branchFilter" class="filter-btn" style="background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 50px; padding: 10px 15px; cursor: pointer;">
+                        <option value="all">كل الفروع</option>
+                        <option value="algiers">الجزائر</option>
+                        <option value="oran">سطيف</option>
+                        <option value="constantine">شلف</option>
+                        <option value="batna">تيسمسيلت</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bookings-list" id="bookingsList">
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h4>لا توجد حجوزات متاحة</h4>
+                    <p>لم يتم العثور على أي حجوزات في النظام</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tripsSection" class="admin-section">
+            <h3><i class="fas fa-plane"></i> إدارة الرحلات</h3>
+            <button id="addTripBtn" class="btn">
+                <i class="fas fa-plus"></i> إضافة رحلة جديدة
+            </button>
+            
+            <div class="add-trip-form" style="display: none;">
+                <h4>إضافة رحلة عمرة</h4>
+                <form id="tripForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tripDate"><i class="far fa-calendar-alt"></i> تاريخ الرحلة</label>
+                            <input type="date" id="tripDate" name="tripDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tripAirline"><i class="fas fa-plane"></i> الخطوط الجوية</label>
+                            <select id="tripAirline" name="tripAirline" required>
+                                <option value="">اختر الخطوط الجوية</option>
+                                <option value="الجزائرية" data-logo="airline_algerie.png">الجزائرية</option>
+                                <option value="القطرية" data-logo="airline_qatar.png">القطرية</option>
+                                <option value="التركية" data-logo="airline_turkish.png">التركية</option>
+                                <option value="الإماراتية" data-logo="airline_emirates.png">الإماراتية</option>
+                                <option value="المصرية" data-logo="airline_egypt.png">المصرية</option>
+                                <option value="التونسية" data-logo="airline_tunisia.png">التونسية</option>
+                                <option value="طيران ناس" data-logo="airline_flynas.png">طيران ناس</option>
+                                <option value="العربية للطيران" data-logo="airline_arabia.png">العربية للطيران</option>
+                                <option value="السعودية" data-logo="airline_saudi.png">السعودية</option>
+                                <option value="الأردنية" data-logo="airline_jordan.png">الأردنية</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tripAirlineLogo"><i class="fas fa-image"></i> شعار الخطوط الجوية</label>
+                            <input type="text" id="tripAirlineLogo" name="tripAirlineLogo" readonly>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tripRoute"><i class="fas fa-route"></i> مسار الرحلة</label>
+                            <input type="text" id="tripRoute" name="tripRoute" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tripDuration"><i class="far fa-clock"></i> المدة (أيام)</label>
+                            <input type="number" id="tripDuration" name="tripDuration" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tripType"><i class="fas fa-star"></i> نوع الرحلة</label>
+                            <select id="tripType" name="tripType" required>
+                                <option value="economy">الإقتصادية</option>
+                                <option value="premium">المميز</option>
+                                <option value="abroad">خارج الوطن</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> الفروع المتاحة</label>
+                        <div class="branch-checkboxes">
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_all" name="branch" value="all">
+                                <label for="branch_all">الكل</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_algiers" name="branch" value="algiers">
+                                <label for="branch_algiers">الجزائر</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_oran" name="branch" value="oran">
+                                <label for="branch_oran">سطيف</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_constantine" name="branch" value="constantine">
+                                <label for="branch_constantine">شلف</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_batna" name="branch" value="batna">
+                                <label for="branch_batna">تيسمسيلت</label>
+                            </div>
+                        </div>
+                        <input type="hidden" id="tripState" name="tripState">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tripHotel"><i class="fas fa-hotel"></i> الفندق</label>
+                        <select id="tripHotel" name="tripHotel" required>
+                            <option value="">اختر الفندق</option>
+                            <option value="الأنوار" data-image="anwar.png" data-distance="300م">أنوار الضيافة</option>
+                            <option value="الضيافة" data-image="diyafa.png" data-distance="800م">رياض الضيافة</option>
+                            <option value="الهدوء" data-image="hodoa.png" data-distance="900م">الأرض المتميزة</option>
+                            <option value="دار الضيافة" data-image="house.png" data-distance="1000م">ديار الضيافة</option>
+                            <option value="قصر" data-image="kas.png" data-distance="800م">أبراج الجنادرية</option>
+                            <option value="القبلة" data-image="kibla.png" data-distance="900م">أبراج التيسير</option>
+                            <option value="الماسة" data-image="masa.png" data-distance="400م">الماسة</option>
+                            <option value="المختارة" data-image="mokhtara.png" data-distance="300م">مجموعة المختارة المركزية</option>
+                            <option value="الأيام بكة الصلاح سابقا" data-image="backa-el-salah.png" data-distance="800">الأيام</option>
+                        </select>
+                    
+                        <input type="hidden" id="tripHotelLogo" name="tripHotelLogo">
+                        <input type="hidden" id="tripHotelDistance" name="tripHotelDistance">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tripHotelDistance"><i class="fas fa-ruler"></i> المسافة عن الحرم (بالمتر)</label>
+                        <input type="text" id="tripHotelDistance" name="tripHotelDistance" placeholder="مثال: 150م" readonly>
+                    </div>
+                    
+                    <h4 style="margin: 25px 0 15px; text-align: center;">أسعار الغرف</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tripPrice5"><i class="fas fa-bed"></i> سعر الغرفة الخماسية</label>
+                            <input type="number" id="tripPrice5" name="tripPrice5" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tripPrice4"><i class="fas fa-bed"></i> سعر الغرفة الرباعية</label>
+                            <input type="number" id="tripPrice4" name="tripPrice4" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tripPrice3"><i class="fas fa-bed"></i> سعر الغرفة الثلاثية</label>
+                            <input type="number" id="tripPrice3" name="tripPrice3" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tripPrice2"><i class="fas fa-bed"></i> سعر الغرفة الثنائية</label>
+                            <input type="number" id="tripPrice2" name="tripPrice2" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-save"></i> حفظ الرحلة
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="trips-list" id="tripsList">
+                <div class="empty-state">
+                    <i class="fas fa-plane-slash"></i>
+                    <h4>لا توجد رحلات متاحة</h4>
+                    <p>قم بإضافة رحلة جديدة لتبدأ في استقبال الحجوزات</p>
+                    <button id="addTripBtn2" class="btn">
+                        <i class="fas fa-plus"></i> إضافة رحلة جديدة
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="statusSection" class="admin-section">
+            <h3><i class="fas fa-bed"></i> إدارة حالات الغرف</h3>
+            <div class="status-controls">
+                <div class="trip-selector">
+                    <label><i class="fas fa-plane"></i> اختر الرحلة:</label>
+                    <select id="tripSelector">
+                    </select>
+                </div>
+
+                <div class="room-status-controls">
+                    <div class="room-control">
+                        <h4><i class="fas fa-users"></i> الغرفة الخماسية</h4>
+                        <select class="status-select" data-room-type="5">
+                            <option value="available">متاح</option>
+                            <option value="limited">محدود</option>
+                            <option value="full">كامل</option>
+                        </select>
+                    </div>
+
+                    <div class="room-control">
+                        <h4><i class="fas fa-users"></i> الغرفة الرباعية</h4>
+                        <select class="status-select" data-room-type="4">
+                            <option value="available">متاح</option>
+                            <option value="limited">محدود</option>
+                            <option value="full">كامل</option>
+                        </select>
+                    </div>
+
+                    <div class="room-control">
+                        <h4><i class="fas fa-users"></i> الغرفة الثلاثية</h4>
+                        <select class="status-select" data-room-type="3">
+                            <option value="available">متاح</option>
+                            <option value="limited">محدود</option>
+                            <option value="full">كامل</option>
+                        </select>
+                    </div>
+
+                    <div class="room-control">
+                        <h4><i class="fas fa-users"></i> الغرفة الثنائية</h4>
+                        <select class="status-select" data-room-type="2">
+                            <option value="available">متاح</option>
+                            <option value="limited">محدود</option>
+                            <option value="full">كامل</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="saveStatusBtn" class="btn btn-submit">
+                    <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
+            </div>
+        </div>
+        
+        <div id="trashSection" class="admin-section">
+            <h3><i class="fas fa-trash"></i> سلة المهملات</h3>
+            
+            <div class="filter-bar">
+                <div class="filter-options">
+                    <button class="filter-btn active" data-trash-type="trips">
+                        <i class="fas fa-plane"></i> الرحلات المحذوفة
+                    </button>
+                    <button class="filter-btn" data-trash-type="bookings">
+                        <i class="fas fa-calendar-check"></i> الحجوزات المحذوفة
+                    </button>
+                </div>
+            </div>
+            
+            <div class="trash-list" id="trashList">
+                <div class="empty-state">
+                    <i class="fas fa-trash-alt"></i>
+                    <h4>سلة المهملات فارغة</h4>
+                    <p>لا توجد عناصر محذوفة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="index-1.html" class="btn back-to-home">
+        <i class="fas fa-home"></i> العودة للصفحة الرئيسية
+    </a>
+
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">تم تنفيذ العملية بنجاح</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const adminNavBtns = document.querySelectorAll('.admin-nav-btn');
+            const adminSections = document.querySelectorAll('.admin-section');
+            const addTripBtn = document.getElementById('addTripBtn');
+            const addTripBtn2 = document.getElementById('addTripBtn2');
+            const tripForm = document.getElementById('tripForm');
+            const tripsList = document.getElementById('tripsList');
+            const bookingsList = document.getElementById('bookingsList');
+            const trashList = document.getElementById('trashList');
+            const tripSelector = document.getElementById('tripSelector');
+            const statusSelects = document.querySelectorAll('.status-select');
+            const saveStatusBtn = document.getElementById('saveStatusBtn');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const totalBookingsEl = document.getElementById('totalBookings');
+            const pendingBookingsEl = document.getElementById('pendingBookings');
+            const approvedBookingsEl = document.getElementById('approvedBookings');
+            const totalTripsEl = document.getElementById('totalTrips');
+            const toggleChartsBtn = document.getElementById('toggleChartsBtn');
+            const stateChartContainer = document.getElementById('stateChartContainer');
+            const typeChartContainer = document.getElementById('typeChartContainer');
+            const tripAirlineSelect = document.getElementById('tripAirline');
+            const tripAirlineLogoInput = document.getElementById('tripAirlineLogo');
+            const bookingSearch = document.getElementById('bookingSearch');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const trashFilterBtns = document.querySelectorAll('[data-trash-type]');
+            const tripHotelSelect = document.getElementById('tripHotel');
+            const tripHotelLogoInput = document.getElementById('tripHotelLogo');
+            const tripHotelDistanceInput = document.getElementById('tripHotelDistance');
+            const branchFilter = document.getElementById('branchFilter');
+            const branchCheckboxes = document.querySelectorAll('input[name="branch"]');
+
+            let bookingsByStateChart;
+            let bookingsByTypeChart;
+            let chartsVisible = false;
+            let currentBookingFilter = 'all';
+            let currentTrashType = 'trips';
+            let currentBranchFilter = 'all';
+
+            const API_BASE_URL = window.location.origin + "/api";
+            
+            function init() {
+                setupEventListeners();
+                renderAdminBookings();
+                renderAdminTrips();
+                setupTripSelector();
+                updateDashboardStats();
+                renderCharts();
+            }
+
+            function toggleCharts() {
+                chartsVisible = !chartsVisible;
+                
+                if (chartsVisible) {
+                    stateChartContainer.classList.add('active');
+                    typeChartContainer.classList.add('active');
+                    toggleChartsBtn.innerHTML = '<i class="fas fa-eye-slash"></i> إخفاء الإحصائيات التفصيلية';
+                } else {
+                    stateChartContainer.classList.remove('active');
+                    typeChartContainer.classList.remove('active');
+                    toggleChartsBtn.innerHTML = '<i class="fas fa-chart-bar"></i> عرض الإحصائيات التفصيلية';
+                }
+            }
+
+            function showToast(message, isSuccess = true) {
+                toastMessage.textContent = message;
+                toast.style.background = isSuccess ? 'var(--gradient)' : 'linear-gradient(135deg, #F44336 0%, #D32F2F 100%)';
+                toast.querySelector('i').className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            function formatDate(dateString) {
+                return moment(dateString).format('DD/MM/YYYY');
+            }
+
+            function formatDateTime(dateString) {
+                return moment(dateString).format('DD/MM/YYYY HH:mm');
+            }
+
+            function formatPrice(price) {
+                return new Intl.NumberFormat('ar-DZ', { style: 'currency', currency: 'DZD' }).format(price);
+            }
+
+            function getStatusText(status) {
+                const statusText = {
+                    'available': 'متاح',
+                    'limited': 'محدود',
+                    'full': 'كامل'
+                };
+                return statusText[status] || status;
+            }
+
+            function getRoomTypeText(roomType) {
+                const roomTypes = {
+                    '5': 'غرفة خماسية',
+                    '4': 'غرفة رباعية',
+                    '3': 'غرفة ثلاثية',
+                    '2': 'غرفة ثنائية'
+                };
+                return roomTypes[roomType] || roomType;
+            }
+
+            function getUmrahTypeText(umrahType) {
+                const umrahTypes = {
+                    'single': 'الإقتصادية',
+                    'double': 'المميز',
+                    'special': 'عمرة خاصة',
+                    'abroad': 'خارج الوطن'
+                };
+                return umrahTypes[umrahType] || umrahType;
+            }
+
+            function getMaritalStatusText(status) {
+                const statusText = {
+                    'single': 'أعزب',
+                    'married': 'متزوج',
+                    'divorced': 'مطلق',
+                    'widowed': 'أرمل'
+                };
+                return statusText[status] || status;
+            }
+
+            function getEducationLevelText(level) {
+                const levels = {
+                    'primary': 'ابتدائي',
+                    'middle': 'متوسط',
+                    'secondary': 'ثانوي',
+                    'university': 'جامعي',
+                    'postgraduate': 'دراسات عليا',
+                    'other': 'أخرى'
+                };
+                return levels[level] || level;
+            }
+
+            function getStateText(state) {
+                const states = {
+                    'algiers': 'الجزائر',
+                    'oran': 'سطيف',
+                    'constantine': 'شلف',
+                    'batna': 'تيسمسيلت',
+                    'all': 'كل الفروع'
+                };
+                return states[state] || state;
+            }
+            
+            function getBookingStatusText(status) {
+                const statusText = {
+                    'pending': 'قيد الانتظار',
+                    'approved': 'تمت الموافقة',
+                    'rejected': 'مرفوض',
+                    'cancelled': 'ملغاة'
+                };
+                return statusText[status] || status;
+            }
+            
+            function getTripTypeText(type) {
+                const types = {
+                    'economy': 'الإقتصادية',
+                    'premium': 'المميز',
+                    'abroad': 'خارج الوطن'
+                };
+                return types[type] || type;
+            }
+
+            function switchAdminSection(sectionId) {
+                adminSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                adminNavBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                document.getElementById(`${sectionId}Section`).classList.add('active');
+                document.querySelector(`.admin-nav-btn[data-section="${sectionId}"]`).classList.add('active');
+                
+                if (sectionId === 'dashboard') {
+                    updateDashboardStats();
+                    renderCharts();
+                } else if (sectionId === 'bookings') {
+                    renderAdminBookings();
+                } else if (sectionId === 'trips') {
+                    renderAdminTrips();
+                } else if (sectionId === 'status') {
+                    setupTripSelector();
+                } else if (sectionId === 'trash') {
+                    renderTrashItems();
+                }
+            }
+
+            async function fetchAPI(url, options = {}) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error('Error fetching API:', error);
+                    showToast('حدث خطأ في الاتصال بالخادم', false);
+                    return null;
+                }
+            }
+
+            async function renderAdminBookings() {
+                bookingsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل الحجوزات...</h4></div>';
+                
+                try {
+                    let url = `${API_BASE_URL}/bookings`;
+                    if (currentBranchFilter !== 'all') {
+                        url += `?branch=${currentBranchFilter}`;
+                    }
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch bookings');
+                    }
+                    
+                    let bookings = await response.json();
+                    
+                    if (!Array.isArray(bookings)) {
+                        bookings = [];
+                    }
+                    
+                    if (currentBookingFilter !== 'all') {
+                        bookings = bookings.filter(booking => booking.status === currentBookingFilter);
+                    }
+                    
+                    const searchTerm = bookingSearch.value.toLowerCase();
+                    if (searchTerm) {
+                        bookings = bookings.filter(booking => 
+                            `${booking.firstName} ${booking.lastName}`.toLowerCase().includes(searchTerm) ||
+                            booking.email.toLowerCase().includes(searchTerm) ||
+                            booking.phone.toLowerCase().includes(searchTerm) ||
+                            booking.passportNumber.toLowerCase().includes(searchTerm)
+                        );
+                    }
+                    
+                    if (bookings.length === 0) {
+                        bookingsList.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><h4>لا توجد حجوزات متاحة</h4><p>لم يتم العثور على أي حجوزات في النظام</p></div>';
+                        return;
+                    }
+
+                    bookingsList.innerHTML = '';
+                    
+                    bookings.forEach(booking => {
+                        const bookingItem = document.createElement('div');
+                        bookingItem.className = 'booking-item';
+                        bookingItem.dataset.id = booking.id;
+                        
+                        bookingItem.innerHTML = `
+                            <div class="booking-item-header">
+                                <div class="booking-item-title">الحجز #${booking.id}</div>
+                                <div class="booking-item-date">${formatDate(booking.bookingDate)}</div>
+                            </div>
+                            <div class="booking-item-details">
+                                <div class="booking-detail">
+                                    <label>الاسم الكامل</label>
+                                    <span>${booking.firstName} ${booking.lastName}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>البريد الإلكتروني</label>
+                                    <span>${booking.email}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>رقم الهاتف</label>
+                                    <span>${booking.phone}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>رقم الهاتف (واتساب)</label>
+                                    <span>${booking.whatsappNumber || 'غير محدد'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>تاريخ الميلاد</label>
+                                    <span>${formatDate(booking.birthDate)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>مكان الميلاد</label>
+                                    <span>${booking.birthPlace}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>الفرع</label>
+                                    <span>${getStateText(booking.branchState)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>رقم جواز السفر</label>
+                                    <span>${booking.passportNumber}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>تاريخ إصدار الجواز</label>
+                                    <span>${formatDate(booking.passportIssueDate)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>تاريخ انتهاء الجواز</label>
+                                    <span>${formatDate(booking.passportExpiryDate)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>نوع العمرة</label>
+                                    <span>${getUmrahTypeText(booking.umrahType)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>نوع الغرفة</label>
+                                    <span>${getRoomTypeText(booking.roomType)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>حساب الفيسبوك</label>
+                                    <span>${booking.facebookProfile ? booking.facebookProfile : 'غير محدد'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>سكانر الجواز</label>
+                                    <span>${booking.passportFile ? `<a href="${booking.passportFile}" target="_blank">عرض الملف</a>` : 'غير مرفوع'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>الحالة الاجتماعية</label>
+                                    <span>${getMaritalStatusText(booking.maritalStatus)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>اسم الأب</label>
+                                    <span>${booking.fatherName}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>اسم الجد</label>
+                                    <span>${booking.grandfatherName}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>المهنة/العمل</label>
+                                    <span>${booking.jobTitle}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>المستوى الدراسي</label>
+                                    <span>${getEducationLevelText(booking.educationLevel)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>ملاحظات إضافية</label>
+                                    <span>${booking.notes || 'لا توجد ملاحظات'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>حالة الحجز</label>
+                                    <span class="status-badge status-${booking.status}">
+                                        ${getBookingStatusText(booking.status)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="admin-actions">
+                                ${booking.status === 'pending' ? `
+                                    <button class="btn-admin btn-approve" data-id="${booking.id}">
+                                        <i class="fas fa-check"></i> قبول
+                                    </button>
+                                    <button class="btn-admin btn-reject" data-id="${booking.id}">
+                                        <i class="fas fa-times"></i> رفض
+                                    </button>
+                                ` : ''}
+                                <button class="btn-admin btn-delete" data-id="${booking.id}">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        `;
+                        
+                        bookingsList.appendChild(bookingItem);
+                    });
+
+                    document.querySelectorAll('.btn-approve').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            updateBookingStatus(this.dataset.id, 'approved');
+                        });
+                    });
+                    
+                    document.querySelectorAll('.btn-reject').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            updateBookingStatus(this.dataset.id, 'rejected');
+                        });
+                    });
+                    
+                    document.querySelectorAll('.btn-delete').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteBooking(this.dataset.id);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('Error loading bookings:', error);
+                    bookingsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>حدث خطأ في تحميل الحجوزات</h4>
+                            <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            async function renderAdminTrips() {
+                tripsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل الرحلات...</h4></div>';
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trips');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    let trips = Array.isArray(data) ? data : (data.trips || []);
+                    
+                    if (!trips || !Array.isArray(trips)) {
+                        throw new Error('Invalid trips data format');
+                    }
+
+                    if (trips.length === 0) {
+                        tripsList.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-plane-slash"></i>
+                                <h4>لا توجد رحلات متاحة</h4>
+                                <p>قم بإضافة رحلة جديدة لتبدأ في استقبال الحجوزات</p>
+                                <button id="addTripBtn2" class="btn">
+                                    <i class="fas fa-plus"></i> إضافة رحلة جديدة
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    tripsList.innerHTML = '';
+                    
+                    trips.forEach(trip => {
+                        const tripItem = document.createElement('div');
+                        tripItem.className = 'trip-item';
+                        tripItem.dataset.id = trip.id;
+                        
+                        const branches = trip.state.split(',').map(branch => getStateText(branch)).join('، ');
+                        
+                        tripItem.innerHTML = `
+                            <div class="trip-info">
+                                <h4>
+                                    ${trip.airline_logo ? `<img src="${trip.airline_logo}" alt="${trip.airline}">` : '<i class="fas fa-plane"></i>'}
+                                    ${trip.airline} - ${formatDate(trip.date)}
+                                </h4>
+                                <div class="trip-details">
+                                    <span><i class="fas fa-route"></i> ${trip.route}</span>
+                                    <span><i class="far fa-clock"></i> ${trip.duration} أيام</span>
+                                    <span><i class="fas fa-star"></i> ${getTripTypeText(trip.type)}</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${branches}</span>
+                                </div>
+                            </div>
+                            <div class="trip-actions">
+                                <button class="btn-admin btn-edit" data-id="${trip.id}">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </button>
+                                <button class="btn-admin btn-delete" data-id="${trip.id}">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        `;
+                        
+                        tripsList.appendChild(tripItem);
+                    });
+
+                    document.querySelectorAll('.trip-actions .btn-edit').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            editTrip(this.dataset.id);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.trip-actions .btn-delete').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteTrip(this.dataset.id);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error('Error loading trips:', error);
+                    tripsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>حدث خطأ في تحميل الرحلات</h4>
+                            <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
+                            <button onclick="location.reload()" class="btn">إعادة تحميل</button>
+                        </div>
+                    `;
+                }
+            }
+
+            async function renderTrashItems() {
+                trashList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل العناصر المحذوفة...</h4></div>';
+                
+                try {
+                    if (currentTrashType === 'trips') {
+                        const response = await fetch(`${API_BASE_URL}/trash/trips`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch deleted trips');
+                        }
+                        
+                        const data = await response.json();
+                        const trips = data.trips || [];
+                        
+                        if (trips.length === 0) {
+                            trashList.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <h4>لا توجد رحلات محذوفة</h4>
+                                    <p>سلة المهملات فارغة من الرحلات</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        trashList.innerHTML = '';
+                        
+                        trips.forEach(trip => {
+                            const trashItem = document.createElement('div');
+                            trashItem.className = 'trash-item';
+                            trashItem.dataset.id = trip.id;
+                            trashItem.dataset.type = 'trip';
+                            
+                            trashItem.innerHTML = `
+                                <div class="booking-item-header">
+                                    <div class="booking-item-title">رحلة #${trip.id}</div>
+                                    <div class="booking-item-date">تم الحذف في: ${formatDateTime(trip.deleted_at)}</div>
+                                </div>
+                                <div class="booking-item-details">
+                                    <div class="booking-detail">
+                                        <label>الخطوط الجوية</label>
+                                        <span>${trip.airline}</span>
+                                    </div>
+                                    <div class="booking-detail">
+                                        <label>التاريخ</label>
+                                        <span>${formatDate(trip.date)}</span>
+                                    </div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-admin btn-restore" data-id="${trip.id}" data-type="trip">
+                                        <i class="fas fa-undo"></i> استعادة
+                                    </button>
+                                    <button class="btn-admin btn-permanent" data-id="${trip.id}" data-type="trip">
+                                        <i class="fas fa-trash"></i> حذف نهائي
+                                    </button>
+                                </div>
+                            `;
+                            
+                            trashList.appendChild(trashItem);
+                        });
+                        
+                    } else {
+                        const response = await fetch(`${API_BASE_URL}/trash/bookings`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch deleted bookings');
+                        }
+                        
+                        const data = await response.json();
+                        const bookings = data.bookings || [];
+                        
+                        if (bookings.length === 0) {
+                            trashList.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <h4>لا توجد حجوزات محذوفة</h4>
+                                    <p>سلة المهملات فارغة من الحجوزات</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        trashList.innerHTML = '';
+                        
+                        bookings.forEach(booking => {
+                            const trashItem = document.createElement('div');
+                            trashItem.className = 'trash-item';
+                            trashItem.dataset.id = booking.id;
+                            trashItem.dataset.type = 'booking';
+                            
+                            trashItem.innerHTML = `
+                                <div class="booking-item-header">
+                                    <div class="booking-item-title">حجز #${booking.id}</div>
+                                    <div class="booking-item-date">تم الحذف في: ${formatDateTime(booking.deleted_at)}</div>
+                                </div>
+                                <div class="booking-item-details">
+                                    <div class="booking-detail">
+                                        <label>الاسم الكامل</label>
+                                        <span>${booking.firstName} ${booking.lastName}</span>
+                                    </div>
+                                    <div class="booking-detail">
+                                        <label>البريد الإلكتروني</label>
+                                        <span>${booking.email}</span>
+                                    </div>
+                                    <div class="booking-detail">
+                                        <label>رقم الهاتف</label>
+                                        <span>${booking.phone}</span>
+                                    </div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-admin btn-restore" data-id="${booking.id}" data-type="booking">
+                                        <i class="fas fa-undo"></i> استعادة
+                                    </button>
+                                    <button class="btn-admin btn-permanent" data-id="${booking.id}" data-type="booking">
+                                        <i class="fas fa-trash"></i> حذف نهائي
+                                    </button>
+                                </div>
+                            `;
+                            
+                            trashList.appendChild(trashItem);
+                        });
+                    }
+                    
+                    document.querySelectorAll('.btn-restore').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const type = this.dataset.type;
+                            restoreItem(id, type);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.btn-permanent').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const type = this.dataset.type;
+                            deletePermanent(id, type);
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('Error loading trash items:', error);
+                    trashList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>حدث خطأ في تحميل العناصر المحذوفة</h4>
+                            <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            async function restoreItem(id, type) {
+                try {
+                    let url, method;
+                    
+                    if (type === 'trip') {
+                        url = `${API_BASE_URL}/trash/trips/${id}/restore`;
+                        method = 'POST';
+                    } else {
+                        url = `${API_BASE_URL}/bookings/${id}/restore`;
+                        method = 'POST';
+                    }
+                    
+                    const response = await fetch(url, { method });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to restore item');
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.message) {
+                        showToast(`تم استعادة ${type === 'trip' ? 'الرحلة' : 'الحجز'} #${id} بنجاح`);
+                        renderTrashItems();
+                        
+                        if (type === 'trip') {
+                            renderAdminTrips();
+                            updateDashboardStats();
+                        } else {
+                            renderAdminBookings();
+                            updateDashboardStats();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error restoring item:', error);
+                    showToast('حدث خطأ أثناء استعادة العنصر', false);
+                }
+            }
+
+            async function deletePermanent(id, type) {
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "سيتم حذف هذا العنصر نهائياً ولن تتمكن من استعادته!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#2E7D32',
+                    confirmButtonText: 'نعم، احذف نهائياً!',
+                    cancelButtonText: 'إلغاء'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            let url, method;
+                            
+                            if (type === 'trip') {
+                                url = `${API_BASE_URL}/trash/trips/${id}/permanent`;
+                                method = 'DELETE';
+                            } else {
+                                url = `${API_BASE_URL}/bookings/${id}/permanent`;
+                                method = 'DELETE';
+                            }
+                            
+                            const response = await fetch(url, { method });
+                            
+                            if (!response.ok) {
+                                throw new Error('Failed to delete permanently');
+                            }
+                            
+                            const result = await response.json();
+                            
+                            if (result.message) {
+                                showToast(`تم حذف ${type === 'trip' ? 'الرحلة' : 'الحجز'} #${id} نهائياً`);
+                                renderTrashItems();
+                            }
+                        } catch (error) {
+                            console.error('Error deleting permanently:', error);
+                            showToast('حدث خطأ أثناء الحذف النهائي', false);
+                        }
+                    }
+                });
+            }
+
+            async function updateDashboardStats() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/stats`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch stats');
+                    }
+                    
+                    const stats = await response.json();
+                    
+                    totalBookingsEl.textContent = stats.total_bookings || 0;
+                    pendingBookingsEl.textContent = stats.pending_bookings || 0;
+                    approvedBookingsEl.textContent = stats.approved_bookings || 0;
+                    totalTripsEl.textContent = stats.total_trips || 0;
+
+                    if (bookingsByStateChart) {
+                        bookingsByStateChart.data.labels = Object.keys(stats.state_stats || {});
+                        bookingsByStateChart.data.datasets[0].data = Object.values(stats.state_stats || {});
+                        bookingsByStateChart.update();
+                    }
+
+                    if (bookingsByTypeChart) {
+                        bookingsByTypeChart.data.labels = Object.keys(stats.type_stats || {});
+                        bookingsByTypeChart.data.datasets[0].data = Object.values(stats.type_stats || {});
+                        bookingsByTypeChart.update();
+                    }
+
+                } catch (error) {
+                    console.error('Error loading stats:', error);
+                    showToast('حدث خطأ أثناء تحميل الإحصائيات', false);
+                }
+            }
+
+            async function renderCharts() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/stats`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch stats');
+                    }
+                    
+                    const stats = await response.json();
+
+                    const stateCtx = document.getElementById('bookingsByStateChart').getContext('2d');
+                    bookingsByStateChart = new Chart(stateCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: Object.keys(stats.state_stats || {}),
+                            datasets: [{
+                                label: 'عدد الحجوزات',
+                                data: Object.values(stats.state_stats || {}),
+                                backgroundColor: 'rgba(46, 125, 50, 0.7)',
+                                borderColor: 'rgba(46, 125, 50, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                    const typeCtx = document.getElementById('bookingsByTypeChart').getContext('2d');
+                    bookingsByTypeChart = new Chart(typeCtx, {
+                        type: 'pie',
+                        data: {
+                            labels: Object.keys(stats.type_stats || {}),
+                            datasets: [{
+                                label: 'عدد الحجوزات',
+                                data: Object.values(stats.type_stats || {}),
+                                backgroundColor: [
+                                    'rgba(46, 125, 50, 0.7)',
+                                    'rgba(76, 175, 80, 0.7)',
+                                    'rgba(139, 195, 74, 0.7)',
+                                    'rgba(205, 220, 57, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgba(46, 125, 50, 1)',
+                                    'rgba(76, 175, 80, 1)',
+                                    'rgba(139, 195, 74, 1)',
+                                    'rgba(205, 220, 57, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+
+                } catch (error) {
+                    console.error('Error rendering charts:', error);
+                }
+            }
+
+            async function editTrip(tripId) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips/${tripId}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trip');
+                    }
+                    
+                    const trip = await response.json();
+                    
+                    if (!trip) {
+                        showToast('لم يتم العثور على الرحلة', false);
+                        return;
+                    }
+
+                    document.querySelector('.add-trip-form').style.display = 'block';
+                    addTripBtn.innerHTML = '<i class="fas fa-times"></i> إلغاء';
+                    
+                    document.getElementById('tripDate').value = trip.date;
+                    
+                    const airlineSelect = document.getElementById('tripAirline');
+                    const airlineOption = Array.from(airlineSelect.options).find(opt => opt.value === trip.airline);
+                    if (airlineOption) {
+                        airlineSelect.value = trip.airline;
+                        document.getElementById('tripAirlineLogo').value = trip.airline_logo || airlineOption.getAttribute('data-logo') || '';
+                    }
+                    
+                    document.getElementById('tripRoute').value = trip.route;
+                    document.getElementById('tripDuration').value = trip.duration;
+                    document.getElementById('tripType').value = trip.type;
+                    
+                    const branches = trip.state.split(',');
+                    branchCheckboxes.forEach(checkbox => {
+                        checkbox.checked = branches.includes(checkbox.value) || (branches.includes('all') && checkbox.value === 'all');
+                    });
+                    
+                    document.getElementById('tripPrice5').value = trip.room5.price;
+                    document.getElementById('tripPrice4').value = trip.room4.price;
+                    document.getElementById('tripPrice3').value = trip.room3.price;
+                    document.getElementById('tripPrice2').value = trip.room2.price;
+                    
+                    tripForm.dataset.mode = 'edit';
+                    tripForm.dataset.id = tripId;
+                } catch (error) {
+                    console.error('Error loading trip:', error);
+                    showToast('حدث خطأ أثناء تحميل بيانات الرحلة', false);
+                }
+            }
+
+            async function deleteTrip(tripId) {
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "سيتم نقل الرحلة إلى سلة المهملات",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2E7D32',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'نعم، احذفها!',
+                    cancelButtonText: 'إلغاء'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`${API_BASE_URL}/trips/${tripId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to delete trip');
+                            }
+                            
+                            const result = await response.json();
+                            
+                            if (result.message) {
+                                showToast(`تم نقل الرحلة #${tripId} إلى سلة المهملات`);
+                                
+                                const tripItem = document.querySelector(`.trip-item[data-id="${tripId}"]`);
+                                if (tripItem) {
+                                    tripItem.remove();
+                                }
+                                
+                                updateDashboardStats();
+                                setupTripSelector();
+                                
+                                if (document.querySelectorAll('.trip-item').length === 0) {
+                                    tripsList.innerHTML = `
+                                        <div class="empty-state">
+                                            <i class="fas fa-plane-slash"></i>
+                                            <h4>لا توجد رحلات متاحة</h4>
+                                            <p>قم بإضافة رحلة جديدة لتبدأ في استقبال الحجوزات</p>
+                                            <button id="addTripBtn2" class="btn">
+                                                <i class="fas fa-plus"></i> إضافة رحلة جديدة
+                                            </button>
+                                        </div>
+                                    `;
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error deleting trip:', error);
+                            showToast('حدث خطأ أثناء حذف الرحلة', false);
+                        }
+                    }
+                });
+            }
+
+            async function deleteBooking(bookingId) {
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "سيتم نقل الحجز إلى سلة المهملات",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2E7D32',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'نعم، احذفه!',
+                    cancelButtonText: 'إلغاء'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to delete booking');
+                            }
+                            
+                            const result = await response.json();
+                            
+                            if (result.message) {
+                                showToast(`تم نقل الحجز #${bookingId} إلى سلة المهملات`);
+                                
+                                const bookingItem = document.querySelector(`.booking-item[data-id="${bookingId}"]`);
+                                if (bookingItem) {
+                                    bookingItem.remove();
+                                }
+                                
+                                updateDashboardStats();
+                            }
+                        } catch (error) {
+                            console.error('Error deleting booking:', error);
+                            showToast('حدث خطأ أثناء حذف الحجز', false);
+                        }
+                    }
+                });
+            }
+
+            async function updateBookingStatus(bookingId, status) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update booking');
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.message) {
+                        showToast(`تم تحديث حالة الحجز #${bookingId} بنجاح`);
+                        renderAdminBookings();
+                        updateDashboardStats();
+                    }
+                } catch (error) {
+                    console.error('Error updating booking:', error);
+                    showToast('حدث خطأ أثناء تحديث حالة الحجز', false);
+                }
+            }
+
+            async function setupTripSelector() {
+                tripSelector.innerHTML = '';
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trips');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    let trips = Array.isArray(data) ? data : (data.trips || []);
+                    
+                    if (!trips || !Array.isArray(trips)) {
+                        throw new Error('Invalid trips data format');
+                    }
+
+                    if (trips.length === 0) {
+                        showToast('لا توجد رحلات متاحة', false);
+                        return;
+                    }
+
+                    trips.forEach(trip => {
+                        const option = document.createElement('option');
+                        option.value = trip.id;
+                        option.textContent = `${trip.airline} - ${formatDate(trip.date)}`;
+                        tripSelector.appendChild(option);
+                    });
+                    
+                    if (trips.length > 0) {
+                        loadTripStatus(trips[0].id);
+                    }
+                } catch (error) {
+                    console.error('Error loading trips for selector:', error);
+                    showToast('حدث خطأ أثناء تحميل قائمة الرحلات', false);
+                }
+            }
+
+            async function loadTripStatus(tripId) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips/${tripId}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trip');
+                    }
+                    
+                    const trip = await response.json();
+                    
+                    if (!trip) {
+                        showToast('لم يتم العثور على الرحلة', false);
+                        return;
+                    }
+
+                    document.querySelector('.status-select[data-room-type="5"]').value = trip.room5.status;
+                    document.querySelector('.status-select[data-room-type="4"]').value = trip.room4.status;
+                    document.querySelector('.status-select[data-room-type="3"]').value = trip.room3.status;
+                    document.querySelector('.status-select[data-room-type="2"]').value = trip.room2.status;
+                } catch (error) {
+                    console.error('Error loading trip status:', error);
+                    showToast('حدث خطأ أثناء تحميل حالة الغرف', false);
+                }
+            }
+
+            function setupEventListeners() {
+                adminNavBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        switchAdminSection(this.dataset.section);
+                    });
+                });
+                
+                toggleChartsBtn.addEventListener('click', toggleCharts);
+                
+                addTripBtn.addEventListener('click', toggleTripForm);
+                addTripBtn2.addEventListener('click', toggleTripForm);
+                
+                function toggleTripForm() {
+                    const form = document.querySelector('.add-trip-form');
+                    
+                    if (form.style.display === 'none' || !form.style.display) {
+                        form.style.display = 'block';
+                        addTripBtn.innerHTML = '<i class="fas fa-times"></i> إلغاء';
+                        tripForm.reset();
+                        tripForm.dataset.mode = 'add';
+                        delete tripForm.dataset.id;
+                        branchCheckboxes.forEach(checkbox => checkbox.checked = false);
+                    } else {
+                        form.style.display = 'none';
+                        addTripBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة رحلة جديدة';
+                    }
+                }
+                
+                tripAirlineSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const logoUrl = selectedOption.getAttribute('data-logo');
+                    tripAirlineLogoInput.value = logoUrl || '';
+                });
+                
+                tripHotelSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const logo = selectedOption.getAttribute('data-image') || '';
+                    const distance = selectedOption.getAttribute('data-distance') || '';
+                    
+                    tripHotelLogoInput.value = logo;
+                    tripHotelDistanceInput.value = distance;
+                });
+                
+                branchCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.value === 'all' && this.checked) {
+                            branchCheckboxes.forEach(cb => {
+                                if (cb.value !== 'all') cb.checked = false;
+                            });
+                        } else if (this.value !== 'all' && this.checked) {
+                            document.getElementById('branch_all').checked = false;
+                        }
+                        
+                        const selectedBranches = Array.from(branchCheckboxes)
+                            .filter(cb => cb.checked && cb.value !== 'all')
+                            .map(cb => cb.value);
+                        
+                        if (selectedBranches.length === 0) {
+                            document.getElementById('tripState').value = 'all';
+                        } else {
+                            document.getElementById('tripState').value = selectedBranches.join(',');
+                        }
+                    });
+                });
+                
+                tripForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const mode = this.dataset.mode;
+                    const selectedBranches = Array.from(branchCheckboxes)
+                        .filter(cb => cb.checked)
+                        .map(cb => cb.value);
+                    
+                    let stateValue;
+                    if (selectedBranches.includes('all') || selectedBranches.length === 0) {
+                        stateValue = 'all';
+                    } else {
+                        stateValue = selectedBranches.join(',');
+                    }
+                    
+                    const tripData = {
+                        date: document.getElementById('tripDate').value,
+                        airline: document.getElementById('tripAirline').value,
+                        airline_logo: document.getElementById('tripAirlineLogo').value || '',
+                        hotel: document.getElementById('tripHotel').value,
+                        hotel_logo: document.getElementById('tripHotelLogo').value || '',
+                        hotel_distance: document.getElementById('tripHotelDistance').value || '',
+                        route: document.getElementById('tripRoute').value,
+                        duration: parseInt(document.getElementById('tripDuration').value),
+                        type: document.getElementById('tripType').value,
+                        state: stateValue,
+                        room5_price: parseInt(document.getElementById('tripPrice5').value),
+                        room4_price: parseInt(document.getElementById('tripPrice4').value),
+                        room3_price: parseInt(document.getElementById('tripPrice3').value),
+                        room2_price: parseInt(document.getElementById('tripPrice2').value)
+                    };
+
+                    try {
+                        let response;
+                        let url = `${API_BASE_URL}/trips`;
+                        let method = 'POST';
+                        
+                        if (mode === 'edit') {
+                            url = `${API_BASE_URL}/trips/${this.dataset.id}`;
+                            method = 'PUT';
+                        }
+                        
+                        response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(tripData)
+                        });
+
+                        const result = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Failed to save trip');
+                        }
+                        
+                        showToast(mode === 'add' ? 'تم إضافة الرحلة بنجاح' : 'تم تحديث الرحلة بنجاح');
+                        
+                        document.querySelector('.add-trip-form').style.display = 'none';
+                        addTripBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة رحلة جديدة';
+                        
+                        renderAdminTrips();
+                        setupTripSelector();
+                        updateDashboardStats();
+                    } catch (error) {
+                        console.error('Error saving trip:', error);
+                        showToast(error.message || 'حدث خطأ أثناء حفظ الرحلة', false);
+                    }
+                });
+                
+                tripSelector.addEventListener('change', function() {
+                    loadTripStatus(this.value);
+                });
+                
+                saveStatusBtn.addEventListener('click', async function() {
+                    const tripId = tripSelector.value;
+                    const room5Status = document.querySelector('.status-select[data-room-type="5"]').value;
+                    const room4Status = document.querySelector('.status-select[data-room-type="4"]').value;
+                    const room3Status = document.querySelector('.status-select[data-room-type="3"]').value;
+                    const room2Status = document.querySelector('.status-select[data-room-type="2"]').value;
+                    
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/trips/${tripId}/status`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                room5_status: room5Status,
+                                room4_status: room4Status,
+                                room3_status: room3Status,
+                                room2_status: room2Status
+                            })
+                        });
+
+                        const result = await response.json();
+                        
+                        if (!response.ok) {
+                            throw new Error(result.error || 'Failed to update status');
+                        }
+                        
+                        showToast(`تم تحديث حالة غرف الرحلة #${tripId} بنجاح`);
+                    } catch (error) {
+                        console.error('Error saving trip status:', error);
+                        showToast('حدث خطأ أثناء حفظ حالة الغرف', false);
+                    }
+                });
+                
+                filterBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.dataset.filter) {
+                            filterBtns.forEach(b => b.classList.remove('active'));
+                            this.classList.add('active');
+                            currentBookingFilter = this.dataset.filter;
+                            renderAdminBookings();
+                        }
+                    });
+                });
+                
+                trashFilterBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        trashFilterBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        currentTrashType = this.dataset.trashType;
+                        renderTrashItems();
+                    });
+                });
+                
+                bookingSearch.addEventListener('input', function() {
+                    renderAdminBookings();
+                });
+                
+                branchFilter.addEventListener('change', function() {
+                    currentBranchFilter = this.value;
+                    renderAdminBookings();
+                });
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>

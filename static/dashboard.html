@@ -205,6 +205,16 @@
             color: #FFC107;
         }
 
+        .btn-restore {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .btn-permanent {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+
         .admin-nav {
             display: flex;
             gap: 10px;
@@ -331,11 +341,11 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .bookings-list, .trips-list {
+        .bookings-list, .trips-list, .trash-list {
             margin-top: 20px;
         }
 
-        .booking-item, .trip-item {
+        .booking-item, .trip-item, .trash-item {
             background: rgba(45, 45, 45, 0.7);
             padding: 20px;
             border-radius: 12px;
@@ -345,7 +355,7 @@
             box-shadow: var(--card-shadow);
         }
 
-        .booking-item:hover, .trip-item:hover {
+        .booking-item:hover, .trip-item:hover, .trash-item:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
@@ -784,6 +794,53 @@
             margin-bottom: 20px;
         }
 
+        .branch-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .branch-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .branch-checkbox input {
+            width: auto;
+        }
+
+        .branch-checkbox label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .file-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            display: none;
+        }
+
+        .file-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-upload-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         @media (max-width: 992px) {
             .container {
                 padding: 20px;
@@ -939,6 +996,10 @@
                 <i class="fas fa-bed"></i>
                 حالات الغرف
             </button>
+            <button class="admin-nav-btn" data-section="trash">
+                <i class="fas fa-trash"></i>
+                سلة المهملات
+            </button>
         </div>
         
         <div id="dashboardSection" class="admin-section active">
@@ -1006,6 +1067,13 @@
                     <button class="filter-btn" data-filter="rejected">
                         <i class="fas fa-times"></i> مرفوضة
                     </button>
+                    <select id="branchFilter" class="filter-btn" style="background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 50px; padding: 10px 15px; cursor: pointer;">
+                        <option value="all">كل الفروع</option>
+                        <option value="algiers">الجزائر</option>
+                        <option value="oran">سطيف</option>
+                        <option value="constantine">شلف</option>
+                        <option value="batna">تيسمسيلت</option>
+                    </select>
                 </div>
             </div>
             <div class="bookings-list" id="bookingsList">
@@ -1078,16 +1146,31 @@
                         </div>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="tripState"><i class="fas fa-map-marker-alt"></i> الولاية</label>
-                            <select id="tripState" name="tripState" required>
-                                <option value="algiers">الجزائر</option>
-                                <option value="oran">سطيف</option>
-                                <option value="constantine">شلف</option>
-                                <option value="batna">تيسمسيلت</option>
-                            </select>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> الفروع المتاحة</label>
+                        <div class="branch-checkboxes">
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_all" name="branch" value="all">
+                                <label for="branch_all">الكل</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_algiers" name="branch" value="algiers">
+                                <label for="branch_algiers">الجزائر</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_oran" name="branch" value="oran">
+                                <label for="branch_oran">سطيف</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_constantine" name="branch" value="constantine">
+                                <label for="branch_constantine">شلف</label>
+                            </div>
+                            <div class="branch-checkbox">
+                                <input type="checkbox" id="branch_batna" name="branch" value="batna">
+                                <label for="branch_batna">تيسمسيلت</label>
+                            </div>
                         </div>
+                        <input type="hidden" id="tripState" name="tripState">
                     </div>
                     
                     <div class="form-group">
@@ -1212,6 +1295,29 @@
                 </button>
             </div>
         </div>
+        
+        <div id="trashSection" class="admin-section">
+            <h3><i class="fas fa-trash"></i> سلة المهملات</h3>
+            
+            <div class="filter-bar">
+                <div class="filter-options">
+                    <button class="filter-btn active" data-trash-type="trips">
+                        <i class="fas fa-plane"></i> الرحلات المحذوفة
+                    </button>
+                    <button class="filter-btn" data-trash-type="bookings">
+                        <i class="fas fa-calendar-check"></i> الحجوزات المحذوفة
+                    </button>
+                </div>
+            </div>
+            
+            <div class="trash-list" id="trashList">
+                <div class="empty-state">
+                    <i class="fas fa-trash-alt"></i>
+                    <h4>سلة المهملات فارغة</h4>
+                    <p>لا توجد عناصر محذوفة</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <a href="index-1.html" class="btn back-to-home">
@@ -1235,6 +1341,7 @@
             const tripForm = document.getElementById('tripForm');
             const tripsList = document.getElementById('tripsList');
             const bookingsList = document.getElementById('bookingsList');
+            const trashList = document.getElementById('trashList');
             const tripSelector = document.getElementById('tripSelector');
             const statusSelects = document.querySelectorAll('.status-select');
             const saveStatusBtn = document.getElementById('saveStatusBtn');
@@ -1251,14 +1358,19 @@
             const tripAirlineLogoInput = document.getElementById('tripAirlineLogo');
             const bookingSearch = document.getElementById('bookingSearch');
             const filterBtns = document.querySelectorAll('.filter-btn');
+            const trashFilterBtns = document.querySelectorAll('[data-trash-type]');
             const tripHotelSelect = document.getElementById('tripHotel');
             const tripHotelLogoInput = document.getElementById('tripHotelLogo');
             const tripHotelDistanceInput = document.getElementById('tripHotelDistance');
+            const branchFilter = document.getElementById('branchFilter');
+            const branchCheckboxes = document.querySelectorAll('input[name="branch"]');
 
             let bookingsByStateChart;
             let bookingsByTypeChart;
             let chartsVisible = false;
             let currentBookingFilter = 'all';
+            let currentTrashType = 'trips';
+            let currentBranchFilter = 'all';
 
             const API_BASE_URL = window.location.origin + "/api";
             
@@ -1297,7 +1409,11 @@
             }
 
             function formatDate(dateString) {
-                return new Date(dateString).toLocaleDateString('ar-EG');
+                return moment(dateString).format('DD/MM/YYYY');
+            }
+
+            function formatDateTime(dateString) {
+                return moment(dateString).format('DD/MM/YYYY HH:mm');
             }
 
             function formatPrice(price) {
@@ -1333,12 +1449,35 @@
                 return umrahTypes[umrahType] || umrahType;
             }
 
+            function getMaritalStatusText(status) {
+                const statusText = {
+                    'single': 'أعزب',
+                    'married': 'متزوج',
+                    'divorced': 'مطلق',
+                    'widowed': 'أرمل'
+                };
+                return statusText[status] || status;
+            }
+
+            function getEducationLevelText(level) {
+                const levels = {
+                    'primary': 'ابتدائي',
+                    'middle': 'متوسط',
+                    'secondary': 'ثانوي',
+                    'university': 'جامعي',
+                    'postgraduate': 'دراسات عليا',
+                    'other': 'أخرى'
+                };
+                return levels[level] || level;
+            }
+
             function getStateText(state) {
                 const states = {
                     'algiers': 'الجزائر',
                     'oran': 'سطيف',
                     'constantine': 'شلف',
-                    'batna': 'تيسمسيلت'
+                    'batna': 'تيسمسيلت',
+                    'all': 'كل الفروع'
                 };
                 return states[state] || state;
             }
@@ -1383,6 +1522,8 @@
                     renderAdminTrips();
                 } else if (sectionId === 'status') {
                     setupTripSelector();
+                } else if (sectionId === 'trash') {
+                    renderTrashItems();
                 }
             }
 
@@ -1402,242 +1543,513 @@
             }
 
             async function renderAdminBookings() {
-    bookingsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل الحجوزات...</h4></div>';
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/bookings`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch bookings');
-        }
-        
-        let bookings = await response.json();
-        
-        // تأكد أن bookings هي مصفوفة
-        if (!Array.isArray(bookings)) {
-            bookings = [];
-        }
-        
-        if (currentBookingFilter !== 'all') {
-            bookings = bookings.filter(booking => booking.status === currentBookingFilter);
-        }
-        
-        const searchTerm = bookingSearch.value.toLowerCase();
-        if (searchTerm) {
-            bookings = bookings.filter(booking => 
-                `${booking.firstName} ${booking.lastName}`.toLowerCase().includes(searchTerm) ||
-                booking.email.toLowerCase().includes(searchTerm) ||
-                booking.phone.toLowerCase().includes(searchTerm) ||
-                booking.passportNumber.toLowerCase().includes(searchTerm)
-            );
-        }
-        
-        if (bookings.length === 0) {
-            bookingsList.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><h4>لا توجد حجوزات متاحة</h4><p>لم يتم العثور على أي حجوزات في النظام</p></div>';
-            return;
-        }
+                bookingsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل الحجوزات...</h4></div>';
+                
+                try {
+                    let url = `${API_BASE_URL}/bookings`;
+                    if (currentBranchFilter !== 'all') {
+                        url += `?branch=${currentBranchFilter}`;
+                    }
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch bookings');
+                    }
+                    
+                    let bookings = await response.json();
+                    
+                    if (!Array.isArray(bookings)) {
+                        bookings = [];
+                    }
+                    
+                    if (currentBookingFilter !== 'all') {
+                        bookings = bookings.filter(booking => booking.status === currentBookingFilter);
+                    }
+                    
+                    const searchTerm = bookingSearch.value.toLowerCase();
+                    if (searchTerm) {
+                        bookings = bookings.filter(booking => 
+                            `${booking.firstName} ${booking.lastName}`.toLowerCase().includes(searchTerm) ||
+                            booking.email.toLowerCase().includes(searchTerm) ||
+                            booking.phone.toLowerCase().includes(searchTerm) ||
+                            booking.passportNumber.toLowerCase().includes(searchTerm)
+                        );
+                    }
+                    
+                    if (bookings.length === 0) {
+                        bookingsList.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><h4>لا توجد حجوزات متاحة</h4><p>لم يتم العثور على أي حجوزات في النظام</p></div>';
+                        return;
+                    }
 
-        bookingsList.innerHTML = '';
-        
-        bookings.forEach(booking => {
-            const bookingItem = document.createElement('div');
-            bookingItem.className = 'booking-item';
-            bookingItem.dataset.id = booking.id;
-            
-            bookingItem.innerHTML = `
-                <div class="booking-item-header">
-                    <div class="booking-item-title">الحجز #${booking.id}</div>
-                    <div class="booking-item-date">${formatDate(booking.bookingDate)}</div>
-                </div>
-                <div class="booking-item-details">
-                    <div class="booking-detail">
-                        <label>الاسم الكامل</label>
-                        <span>${booking.firstName} ${booking.lastName}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>البريد الإلكتروني</label>
-                        <span>${booking.email}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>رقم الهاتف</label>
-                        <span>${booking.phone}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>تاريخ الميلاد</label>
-                        <span>${formatDate(booking.birthDate)}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>مكان الميلاد</label>
-                        <span>${booking.birthPlace}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>رقم جواز السفر</label>
-                        <span>${booking.passportNumber}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>تاريخ إصدار الجواز</label>
-                        <span>${formatDate(booking.passportIssueDate)}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>تاريخ انتهاء الجواز</label>
-                        <span>${formatDate(booking.passportExpiryDate)}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>نوع العمرة</label>
-                        <span>${getUmrahTypeText(booking.umrahType)}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>نوع الغرفة</label>
-                        <span>${getRoomTypeText(booking.roomType)}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>ملاحظات إضافية</label>
-                        <span>${booking.notes || 'لا توجد ملاحظات'}</span>
-                    </div>
-                    <div class="booking-detail">
-                        <label>حالة الحجز</label>
-                        <span class="status-badge status-${booking.status}">
-                            ${getBookingStatusText(booking.status)}
-                        </span>
-                    </div>
-                </div>
-                <div class="admin-actions">
-                    ${booking.status === 'pending' ? `
-                        <button class="btn-admin btn-approve" data-id="${booking.id}">
-                            <i class="fas fa-check"></i> قبول
-                        </button>
-                        <button class="btn-admin btn-reject" data-id="${booking.id}">
-                            <i class="fas fa-times"></i> رفض
-                        </button>
-                    ` : ''}
-                    <button class="btn-admin btn-delete" data-id="${booking.id}">
-                        <i class="fas fa-trash"></i> حذف
-                    </button>
-                </div>
-            `;
-            
-            bookingsList.appendChild(bookingItem);
-        });
+                    bookingsList.innerHTML = '';
+                    
+                    bookings.forEach(booking => {
+                        const bookingItem = document.createElement('div');
+                        bookingItem.className = 'booking-item';
+                        bookingItem.dataset.id = booking.id;
+                        
+                        bookingItem.innerHTML = `
+                            <div class="booking-item-header">
+                                <div class="booking-item-title">الحجز #${booking.id}</div>
+                                <div class="booking-item-date">${formatDate(booking.bookingDate)}</div>
+                            </div>
+                            <div class="booking-item-details">
+                                <div class="booking-detail">
+                                    <label>الاسم الكامل</label>
+                                    <span>${booking.firstName} ${booking.lastName}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>البريد الإلكتروني</label>
+                                    <span>${booking.email}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>رقم الهاتف</label>
+                                    <span>${booking.phone}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>رقم الهاتف (واتساب)</label>
+                                    <span>${booking.whatsappNumber || 'غير محدد'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>تاريخ الميلاد</label>
+                                    <span>${formatDate(booking.birthDate)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>مكان الميلاد</label>
+                                    <span>${booking.birthPlace}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>الفرع</label>
+                                    <span>${getStateText(booking.branchState)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>رقم جواز السفر</label>
+                                    <span>${booking.passportNumber}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>تاريخ إصدار الجواز</label>
+                                    <span>${formatDate(booking.passportIssueDate)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>تاريخ انتهاء الجواز</label>
+                                    <span>${formatDate(booking.passportExpiryDate)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>نوع العمرة</label>
+                                    <span>${getUmrahTypeText(booking.umrahType)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>نوع الغرفة</label>
+                                    <span>${getRoomTypeText(booking.roomType)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>حساب الفيسبوك</label>
+                                    <span>${booking.facebookProfile ? booking.facebookProfile : 'غير محدد'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>سكانر الجواز</label>
+                                    <span>${booking.passportFile ? `<a href="${booking.passportFile}" target="_blank">عرض الملف</a>` : 'غير مرفوع'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>الحالة الاجتماعية</label>
+                                    <span>${getMaritalStatusText(booking.maritalStatus)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>اسم الأب</label>
+                                    <span>${booking.fatherName}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>اسم الجد</label>
+                                    <span>${booking.grandfatherName}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>المهنة/العمل</label>
+                                    <span>${booking.jobTitle}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>المستوى الدراسي</label>
+                                    <span>${getEducationLevelText(booking.educationLevel)}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>ملاحظات إضافية</label>
+                                    <span>${booking.notes || 'لا توجد ملاحظات'}</span>
+                                </div>
+                                <div class="booking-detail">
+                                    <label>حالة الحجز</label>
+                                    <span class="status-badge status-${booking.status}">
+                                        ${getBookingStatusText(booking.status)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="admin-actions">
+                                ${booking.status === 'pending' ? `
+                                    <button class="btn-admin btn-approve" data-id="${booking.id}">
+                                        <i class="fas fa-check"></i> قبول
+                                    </button>
+                                    <button class="btn-admin btn-reject" data-id="${booking.id}">
+                                        <i class="fas fa-times"></i> رفض
+                                    </button>
+                                ` : ''}
+                                <button class="btn-admin btn-delete" data-id="${booking.id}">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        `;
+                        
+                        bookingsList.appendChild(bookingItem);
+                    });
 
-        document.querySelectorAll('.btn-approve').forEach(btn => {
-            btn.addEventListener('click', function() {
-                updateBookingStatus(this.dataset.id, 'approved');
-            });
-        });
-        
-        document.querySelectorAll('.btn-reject').forEach(btn => {
-            btn.addEventListener('click', function() {
-                updateBookingStatus(this.dataset.id, 'rejected');
-            });
-        });
-        
-        document.querySelectorAll('.btn-delete').forEach(btn => {
-            btn.addEventListener('click', function() {
-                deleteBooking(this.dataset.id);
-            });
-        });
+                    document.querySelectorAll('.btn-approve').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            updateBookingStatus(this.dataset.id, 'approved');
+                        });
+                    });
+                    
+                    document.querySelectorAll('.btn-reject').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            updateBookingStatus(this.dataset.id, 'rejected');
+                        });
+                    });
+                    
+                    document.querySelectorAll('.btn-delete').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteBooking(this.dataset.id);
+                        });
+                    });
 
-    } catch (error) {
-        console.error('Error loading bookings:', error);
-        bookingsList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h4>حدث خطأ في تحميل الحجوزات</h4>
-                <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
-            </div>
-        `;
-    }
-}
+                } catch (error) {
+                    console.error('Error loading bookings:', error);
+                    bookingsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>حدث خطأ في تحميل الحجوزات</h4>
+                            <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
+                        </div>
+                    `;
+                }
+            }
 
-async function renderAdminTrips() {
-    tripsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل الرحلات...</h4></div>';
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/trips`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch trips');
-        }
-        
-        const data = await response.json();
-        
-        // تحقق من هيكل البيانات القادمة من الخادم
-        let trips = Array.isArray(data) ? data : (data.trips || []);
-        
-        if (!trips || !Array.isArray(trips)) {
-            throw new Error('Invalid trips data format');
-        }
+            async function renderAdminTrips() {
+                tripsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل الرحلات...</h4></div>';
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trips');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    let trips = Array.isArray(data) ? data : (data.trips || []);
+                    
+                    if (!trips || !Array.isArray(trips)) {
+                        throw new Error('Invalid trips data format');
+                    }
 
-        if (trips.length === 0) {
-            tripsList.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-plane-slash"></i>
-                    <h4>لا توجد رحلات متاحة</h4>
-                    <p>قم بإضافة رحلة جديدة لتبدأ في استقبال الحجوزات</p>
-                    <button id="addTripBtn2" class="btn">
-                        <i class="fas fa-plus"></i> إضافة رحلة جديدة
-                    </button>
-                </div>
-            `;
-            return;
-        }
+                    if (trips.length === 0) {
+                        tripsList.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-plane-slash"></i>
+                                <h4>لا توجد رحلات متاحة</h4>
+                                <p>قم بإضافة رحلة جديدة لتبدأ في استقبال الحجوزات</p>
+                                <button id="addTripBtn2" class="btn">
+                                    <i class="fas fa-plus"></i> إضافة رحلة جديدة
+                                </button>
+                            </div>
+                        `;
+                        return;
+                    }
 
-        tripsList.innerHTML = '';
-        
-        trips.forEach(trip => {
-            const tripItem = document.createElement('div');
-            tripItem.className = 'trip-item';
-            tripItem.dataset.id = trip.id;
-            
-            tripItem.innerHTML = `
-                <div class="trip-info">
-                    <h4>
-                        ${trip.airline_logo ? `<img src="${trip.airline_logo}" alt="${trip.airline}">` : '<i class="fas fa-plane"></i>'}
-                        ${trip.airline} - ${formatDate(trip.date)}
-                    </h4>
-                    <div class="trip-details">
-                        <span><i class="fas fa-route"></i> ${trip.route}</span>
-                        <span><i class="far fa-clock"></i> ${trip.duration} أيام</span>
-                        <span><i class="fas fa-star"></i> ${getTripTypeText(trip.type)}</span>
-                        <span><i class="fas fa-map-marker-alt"></i> ${getStateText(trip.state)}</span>
-                    </div>
-                </div>
-                <div class="trip-actions">
-                    <button class="btn-admin btn-edit" data-id="${trip.id}">
-                        <i class="fas fa-edit"></i> تعديل
-                    </button>
-                    <button class="btn-admin btn-delete" data-id="${trip.id}">
-                        <i class="fas fa-trash"></i> حذف
-                    </button>
-                </div>
-            `;
-            
-            tripsList.appendChild(tripItem);
-        });
+                    tripsList.innerHTML = '';
+                    
+                    trips.forEach(trip => {
+                        const tripItem = document.createElement('div');
+                        tripItem.className = 'trip-item';
+                        tripItem.dataset.id = trip.id;
+                        
+                        const branches = trip.state.split(',').map(branch => getStateText(branch)).join('، ');
+                        
+                        tripItem.innerHTML = `
+                            <div class="trip-info">
+                                <h4>
+                                    ${trip.airline_logo ? `<img src="${trip.airline_logo}" alt="${trip.airline}">` : '<i class="fas fa-plane"></i>'}
+                                    ${trip.airline} - ${formatDate(trip.date)}
+                                </h4>
+                                <div class="trip-details">
+                                    <span><i class="fas fa-route"></i> ${trip.route}</span>
+                                    <span><i class="far fa-clock"></i> ${trip.duration} أيام</span>
+                                    <span><i class="fas fa-star"></i> ${getTripTypeText(trip.type)}</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${branches}</span>
+                                </div>
+                            </div>
+                            <div class="trip-actions">
+                                <button class="btn-admin btn-edit" data-id="${trip.id}">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </button>
+                                <button class="btn-admin btn-delete" data-id="${trip.id}">
+                                    <i class="fas fa-trash"></i> حذف
+                                </button>
+                            </div>
+                        `;
+                        
+                        tripsList.appendChild(tripItem);
+                    });
 
-        document.querySelectorAll('.trip-actions .btn-edit').forEach(btn => {
-            btn.addEventListener('click', function() {
-                editTrip(this.dataset.id);
-            });
-        });
-        
-        document.querySelectorAll('.trip-actions .btn-delete').forEach(btn => {
-            btn.addEventListener('click', function() {
-                deleteTrip(this.dataset.id);
-            });
-        });
+                    document.querySelectorAll('.trip-actions .btn-edit').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            editTrip(this.dataset.id);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.trip-actions .btn-delete').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            deleteTrip(this.dataset.id);
+                        });
+                    });
 
-    } catch (error) {
-        console.error('Error loading trips:', error);
-        tripsList.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h4>حدث خطأ في تحميل الرحلات</h4>
-                <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
-                <button onclick="location.reload()" class="btn">إعادة تحميل</button>
-            </div>
-        `;
-    }
-}
+                } catch (error) {
+                    console.error('Error loading trips:', error);
+                    tripsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>حدث خطأ في تحميل الرحلات</h4>
+                            <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
+                            <button onclick="location.reload()" class="btn">إعادة تحميل</button>
+                        </div>
+                    `;
+                }
+            }
+
+            async function renderTrashItems() {
+                trashList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h4>جاري تحميل العناصر المحذوفة...</h4></div>';
+                
+                try {
+                    if (currentTrashType === 'trips') {
+                        const response = await fetch(`${API_BASE_URL}/trash/trips`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch deleted trips');
+                        }
+                        
+                        const data = await response.json();
+                        const trips = data.trips || [];
+                        
+                        if (trips.length === 0) {
+                            trashList.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <h4>لا توجد رحلات محذوفة</h4>
+                                    <p>سلة المهملات فارغة من الرحلات</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        trashList.innerHTML = '';
+                        
+                        trips.forEach(trip => {
+                            const trashItem = document.createElement('div');
+                            trashItem.className = 'trash-item';
+                            trashItem.dataset.id = trip.id;
+                            trashItem.dataset.type = 'trip';
+                            
+                            trashItem.innerHTML = `
+                                <div class="booking-item-header">
+                                    <div class="booking-item-title">رحلة #${trip.id}</div>
+                                    <div class="booking-item-date">تم الحذف في: ${formatDateTime(trip.deleted_at)}</div>
+                                </div>
+                                <div class="booking-item-details">
+                                    <div class="booking-detail">
+                                        <label>الخطوط الجوية</label>
+                                        <span>${trip.airline}</span>
+                                    </div>
+                                    <div class="booking-detail">
+                                        <label>التاريخ</label>
+                                        <span>${formatDate(trip.date)}</span>
+                                    </div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-admin btn-restore" data-id="${trip.id}" data-type="trip">
+                                        <i class="fas fa-undo"></i> استعادة
+                                    </button>
+                                    <button class="btn-admin btn-permanent" data-id="${trip.id}" data-type="trip">
+                                        <i class="fas fa-trash"></i> حذف نهائي
+                                    </button>
+                                </div>
+                            `;
+                            
+                            trashList.appendChild(trashItem);
+                        });
+                        
+                    } else {
+                        const response = await fetch(`${API_BASE_URL}/trash/bookings`);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch deleted bookings');
+                        }
+                        
+                        const data = await response.json();
+                        const bookings = data.bookings || [];
+                        
+                        if (bookings.length === 0) {
+                            trashList.innerHTML = `
+                                <div class="empty-state">
+                                    <i class="fas fa-trash-alt"></i>
+                                    <h4>لا توجد حجوزات محذوفة</h4>
+                                    <p>سلة المهملات فارغة من الحجوزات</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        trashList.innerHTML = '';
+                        
+                        bookings.forEach(booking => {
+                            const trashItem = document.createElement('div');
+                            trashItem.className = 'trash-item';
+                            trashItem.dataset.id = booking.id;
+                            trashItem.dataset.type = 'booking';
+                            
+                            trashItem.innerHTML = `
+                                <div class="booking-item-header">
+                                    <div class="booking-item-title">حجز #${booking.id}</div>
+                                    <div class="booking-item-date">تم الحذف في: ${formatDateTime(booking.deleted_at)}</div>
+                                </div>
+                                <div class="booking-item-details">
+                                    <div class="booking-detail">
+                                        <label>الاسم الكامل</label>
+                                        <span>${booking.firstName} ${booking.lastName}</span>
+                                    </div>
+                                    <div class="booking-detail">
+                                        <label>البريد الإلكتروني</label>
+                                        <span>${booking.email}</span>
+                                    </div>
+                                    <div class="booking-detail">
+                                        <label>رقم الهاتف</label>
+                                        <span>${booking.phone}</span>
+                                    </div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-admin btn-restore" data-id="${booking.id}" data-type="booking">
+                                        <i class="fas fa-undo"></i> استعادة
+                                    </button>
+                                    <button class="btn-admin btn-permanent" data-id="${booking.id}" data-type="booking">
+                                        <i class="fas fa-trash"></i> حذف نهائي
+                                    </button>
+                                </div>
+                            `;
+                            
+                            trashList.appendChild(trashItem);
+                        });
+                    }
+                    
+                    document.querySelectorAll('.btn-restore').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const type = this.dataset.type;
+                            restoreItem(id, type);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.btn-permanent').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = this.dataset.id;
+                            const type = this.dataset.type;
+                            deletePermanent(id, type);
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('Error loading trash items:', error);
+                    trashList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h4>حدث خطأ في تحميل العناصر المحذوفة</h4>
+                            <p>${error.message || 'الرجاء المحاولة مرة أخرى لاحقاً'}</p>
+                        </div>
+                    `;
+                }
+            }
+
+            async function restoreItem(id, type) {
+                try {
+                    let url, method;
+                    
+                    if (type === 'trip') {
+                        url = `${API_BASE_URL}/trash/trips/${id}/restore`;
+                        method = 'POST';
+                    } else {
+                        url = `${API_BASE_URL}/bookings/${id}/restore`;
+                        method = 'POST';
+                    }
+                    
+                    const response = await fetch(url, { method });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to restore item');
+                    }
+                    
+                    const result = await response.json();
+                    
+                    if (result.message) {
+                        showToast(`تم استعادة ${type === 'trip' ? 'الرحلة' : 'الحجز'} #${id} بنجاح`);
+                        renderTrashItems();
+                        
+                        if (type === 'trip') {
+                            renderAdminTrips();
+                            updateDashboardStats();
+                        } else {
+                            renderAdminBookings();
+                            updateDashboardStats();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error restoring item:', error);
+                    showToast('حدث خطأ أثناء استعادة العنصر', false);
+                }
+            }
+
+            async function deletePermanent(id, type) {
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "سيتم حذف هذا العنصر نهائياً ولن تتمكن من استعادته!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#2E7D32',
+                    confirmButtonText: 'نعم، احذف نهائياً!',
+                    cancelButtonText: 'إلغاء'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            let url, method;
+                            
+                            if (type === 'trip') {
+                                url = `${API_BASE_URL}/trash/trips/${id}/permanent`;
+                                method = 'DELETE';
+                            } else {
+                                url = `${API_BASE_URL}/bookings/${id}/permanent`;
+                                method = 'DELETE';
+                            }
+                            
+                            const response = await fetch(url, { method });
+                            
+                            if (!response.ok) {
+                                throw new Error('Failed to delete permanently');
+                            }
+                            
+                            const result = await response.json();
+                            
+                            if (result.message) {
+                                showToast(`تم حذف ${type === 'trip' ? 'الرحلة' : 'الحجز'} #${id} نهائياً`);
+                                renderTrashItems();
+                            }
+                        } catch (error) {
+                            console.error('Error deleting permanently:', error);
+                            showToast('حدث خطأ أثناء الحذف النهائي', false);
+                        }
+                    }
+                });
+            }
 
             async function updateDashboardStats() {
                 try {
@@ -1768,7 +2180,12 @@ async function renderAdminTrips() {
                     document.getElementById('tripRoute').value = trip.route;
                     document.getElementById('tripDuration').value = trip.duration;
                     document.getElementById('tripType').value = trip.type;
-                    document.getElementById('tripState').value = trip.state;
+                    
+                    const branches = trip.state.split(',');
+                    branchCheckboxes.forEach(checkbox => {
+                        checkbox.checked = branches.includes(checkbox.value) || (branches.includes('all') && checkbox.value === 'all');
+                    });
+                    
                     document.getElementById('tripPrice5').value = trip.room5.price;
                     document.getElementById('tripPrice4').value = trip.room4.price;
                     document.getElementById('tripPrice3').value = trip.room3.price;
@@ -1785,7 +2202,7 @@ async function renderAdminTrips() {
             async function deleteTrip(tripId) {
                 Swal.fire({
                     title: 'هل أنت متأكد؟',
-                    text: "لن تتمكن من استعادة هذه الرحلة!",
+                    text: "سيتم نقل الرحلة إلى سلة المهملات",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#2E7D32',
@@ -1806,7 +2223,7 @@ async function renderAdminTrips() {
                             const result = await response.json();
                             
                             if (result.message) {
-                                showToast(`تم حذف الرحلة #${tripId} بنجاح`);
+                                showToast(`تم نقل الرحلة #${tripId} إلى سلة المهملات`);
                                 
                                 const tripItem = document.querySelector(`.trip-item[data-id="${tripId}"]`);
                                 if (tripItem) {
@@ -1837,69 +2254,45 @@ async function renderAdminTrips() {
                 });
             }
 
-            async function setupTripSelector() {
-    tripSelector.innerHTML = '';
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/trips`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch trips');
-        }
-        
-        const data = await response.json();
-        
-        // تحقق من هيكل البيانات القادمة من الخادم
-        let trips = Array.isArray(data) ? data : (data.trips || []);
-        
-        if (!trips || !Array.isArray(trips)) {
-            throw new Error('Invalid trips data format');
-        }
+            async function deleteBooking(bookingId) {
+                Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    text: "سيتم نقل الحجز إلى سلة المهملات",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#2E7D32',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'نعم، احذفه!',
+                    cancelButtonText: 'إلغاء'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+                                method: 'DELETE'
+                            });
 
-        if (trips.length === 0) {
-            showToast('لا توجد رحلات متاحة', false);
-            return;
-        }
-
-        trips.forEach(trip => {
-            const option = document.createElement('option');
-            option.value = trip.id;
-            option.textContent = `${trip.airline} - ${formatDate(trip.date)}`;
-            tripSelector.appendChild(option);
-        });
-        
-        if (trips.length > 0) {
-            loadTripStatus(trips[0].id);
-        }
-    } catch (error) {
-        console.error('Error loading trips for selector:', error);
-        showToast('حدث خطأ أثناء تحميل قائمة الرحلات', false);
-    }
-}
-
-            async function loadTripStatus(tripId) {
-                try {
-                    const response = await fetch(`${API_BASE_URL}/trips/${tripId}`);
-                    
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch trip');
+                            if (!response.ok) {
+                                throw new Error('Failed to delete booking');
+                            }
+                            
+                            const result = await response.json();
+                            
+                            if (result.message) {
+                                showToast(`تم نقل الحجز #${bookingId} إلى سلة المهملات`);
+                                
+                                const bookingItem = document.querySelector(`.booking-item[data-id="${bookingId}"]`);
+                                if (bookingItem) {
+                                    bookingItem.remove();
+                                }
+                                
+                                updateDashboardStats();
+                            }
+                        } catch (error) {
+                            console.error('Error deleting booking:', error);
+                            showToast('حدث خطأ أثناء حذف الحجز', false);
+                        }
                     }
-                    
-                    const trip = await response.json();
-                    
-                    if (!trip) {
-                        showToast('لم يتم العثور على الرحلة', false);
-                        return;
-                    }
-
-                    document.querySelector('.status-select[data-room-type="5"]').value = trip.room5.status;
-                    document.querySelector('.status-select[data-room-type="4"]').value = trip.room4.status;
-                    document.querySelector('.status-select[data-room-type="3"]').value = trip.room3.status;
-                    document.querySelector('.status-select[data-room-type="2"]').value = trip.room2.status;
-                } catch (error) {
-                    console.error('Error loading trip status:', error);
-                    showToast('حدث خطأ أثناء تحميل حالة الغرف', false);
-                }
+                });
             }
 
             async function updateBookingStatus(bookingId, status) {
@@ -1929,45 +2322,68 @@ async function renderAdminTrips() {
                 }
             }
 
-            async function deleteBooking(bookingId) {
-                Swal.fire({
-                    title: 'هل أنت متأكد؟',
-                    text: "لن تتمكن من استعادة هذا الحجز!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#2E7D32',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'نعم، احذفه!',
-                    cancelButtonText: 'إلغاء'
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        try {
-                            const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
-                                method: 'DELETE'
-                            });
-
-                            if (!response.ok) {
-                                throw new Error('Failed to delete booking');
-                            }
-                            
-                            const result = await response.json();
-                            
-                            if (result.message) {
-                                showToast(`تم حذف الحجز #${bookingId} بنجاح`);
-                                
-                                const bookingItem = document.querySelector(`.booking-item[data-id="${bookingId}"]`);
-                                if (bookingItem) {
-                                    bookingItem.remove();
-                                }
-                                
-                                updateDashboardStats();
-                            }
-                        } catch (error) {
-                            console.error('Error deleting booking:', error);
-                            showToast('حدث خطأ أثناء حذف الحجز', false);
-                        }
+            async function setupTripSelector() {
+                tripSelector.innerHTML = '';
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trips');
                     }
-                });
+                    
+                    const data = await response.json();
+                    
+                    let trips = Array.isArray(data) ? data : (data.trips || []);
+                    
+                    if (!trips || !Array.isArray(trips)) {
+                        throw new Error('Invalid trips data format');
+                    }
+
+                    if (trips.length === 0) {
+                        showToast('لا توجد رحلات متاحة', false);
+                        return;
+                    }
+
+                    trips.forEach(trip => {
+                        const option = document.createElement('option');
+                        option.value = trip.id;
+                        option.textContent = `${trip.airline} - ${formatDate(trip.date)}`;
+                        tripSelector.appendChild(option);
+                    });
+                    
+                    if (trips.length > 0) {
+                        loadTripStatus(trips[0].id);
+                    }
+                } catch (error) {
+                    console.error('Error loading trips for selector:', error);
+                    showToast('حدث خطأ أثناء تحميل قائمة الرحلات', false);
+                }
+            }
+
+            async function loadTripStatus(tripId) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/trips/${tripId}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch trip');
+                    }
+                    
+                    const trip = await response.json();
+                    
+                    if (!trip) {
+                        showToast('لم يتم العثور على الرحلة', false);
+                        return;
+                    }
+
+                    document.querySelector('.status-select[data-room-type="5"]').value = trip.room5.status;
+                    document.querySelector('.status-select[data-room-type="4"]').value = trip.room4.status;
+                    document.querySelector('.status-select[data-room-type="3"]').value = trip.room3.status;
+                    document.querySelector('.status-select[data-room-type="2"]').value = trip.room2.status;
+                } catch (error) {
+                    console.error('Error loading trip status:', error);
+                    showToast('حدث خطأ أثناء تحميل حالة الغرف', false);
+                }
             }
 
             function setupEventListeners() {
@@ -1991,6 +2407,7 @@ async function renderAdminTrips() {
                         tripForm.reset();
                         tripForm.dataset.mode = 'add';
                         delete tripForm.dataset.id;
+                        branchCheckboxes.forEach(checkbox => checkbox.checked = false);
                     } else {
                         form.style.display = 'none';
                         addTripBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة رحلة جديدة';
@@ -2012,10 +2429,43 @@ async function renderAdminTrips() {
                     tripHotelDistanceInput.value = distance;
                 });
                 
+                branchCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.value === 'all' && this.checked) {
+                            branchCheckboxes.forEach(cb => {
+                                if (cb.value !== 'all') cb.checked = false;
+                            });
+                        } else if (this.value !== 'all' && this.checked) {
+                            document.getElementById('branch_all').checked = false;
+                        }
+                        
+                        const selectedBranches = Array.from(branchCheckboxes)
+                            .filter(cb => cb.checked && cb.value !== 'all')
+                            .map(cb => cb.value);
+                        
+                        if (selectedBranches.length === 0) {
+                            document.getElementById('tripState').value = 'all';
+                        } else {
+                            document.getElementById('tripState').value = selectedBranches.join(',');
+                        }
+                    });
+                });
+                
                 tripForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
                     const mode = this.dataset.mode;
+                    const selectedBranches = Array.from(branchCheckboxes)
+                        .filter(cb => cb.checked)
+                        .map(cb => cb.value);
+                    
+                    let stateValue;
+                    if (selectedBranches.includes('all') || selectedBranches.length === 0) {
+                        stateValue = 'all';
+                    } else {
+                        stateValue = selectedBranches.join(',');
+                    }
+                    
                     const tripData = {
                         date: document.getElementById('tripDate').value,
                         airline: document.getElementById('tripAirline').value,
@@ -2026,7 +2476,7 @@ async function renderAdminTrips() {
                         route: document.getElementById('tripRoute').value,
                         duration: parseInt(document.getElementById('tripDuration').value),
                         type: document.getElementById('tripType').value,
-                        state: document.getElementById('tripState').value,
+                        state: stateValue,
                         room5_price: parseInt(document.getElementById('tripPrice5').value),
                         room4_price: parseInt(document.getElementById('tripPrice4').value),
                         room3_price: parseInt(document.getElementById('tripPrice3').value),
@@ -2111,21 +2561,36 @@ async function renderAdminTrips() {
                 
                 filterBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
-                        filterBtns.forEach(b => b.classList.remove('active'));
+                        if (this.dataset.filter) {
+                            filterBtns.forEach(b => b.classList.remove('active'));
+                            this.classList.add('active');
+                            currentBookingFilter = this.dataset.filter;
+                            renderAdminBookings();
+                        }
+                    });
+                });
+                
+                trashFilterBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        trashFilterBtns.forEach(b => b.classList.remove('active'));
                         this.classList.add('active');
-                        currentBookingFilter = this.dataset.filter;
-                        renderAdminBookings();
+                        currentTrashType = this.dataset.trashType;
+                        renderTrashItems();
                     });
                 });
                 
                 bookingSearch.addEventListener('input', function() {
                     renderAdminBookings();
                 });
+                
+                branchFilter.addEventListener('change', function() {
+                    currentBranchFilter = this.value;
+                    renderAdminBookings();
+                });
             }
 
             init();
         });
-
     </script>
 </body>
 </html>

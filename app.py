@@ -6,8 +6,8 @@ import logging
 import shutil
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
 import sys
 import traceback
 
@@ -36,12 +36,11 @@ def get_db():
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
     
     try:
-        conn = psycopg2.connect(
+        conn = psycopg.connect(
             DATABASE_URL,
-            cursor_factory=RealDictCursor,
-            connect_timeout=10
+            row_factory=dict_row,
+            autocommit=False
         )
-        conn.autocommit = False
         return conn
     except Exception as e:
         logger.error(f"Database connection error: {str(e)}")
@@ -51,6 +50,7 @@ def get_db():
 def init_db():
     conn = get_db()
     if not conn:
+        logger.error("Failed to connect to database")
         return
     
     c = conn.cursor()
@@ -981,8 +981,8 @@ if __name__ == '__main__':
     logger.info(f"Starting Flask app on port {port}")
     
     app.run(host="0.0.0.0", port=port, debug=False)
+
 else:
     # For production servers (Render)
     init_db()
-    gunicorn_app = app
-    # Note: gunicorn_app is not used but kept for compatibility
+    # gunicorn_app is not used but kept for compatibility

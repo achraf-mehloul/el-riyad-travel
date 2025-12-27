@@ -8,6 +8,8 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import sys
+import traceback
 
 load_dotenv()
 
@@ -36,11 +38,14 @@ def get_db():
     try:
         conn = psycopg2.connect(
             DATABASE_URL,
-            cursor_factory=RealDictCursor
+            cursor_factory=RealDictCursor,
+            connect_timeout=10
         )
+        conn.autocommit = False
         return conn
     except Exception as e:
         logger.error(f"Database connection error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return None
 
 def init_db():
@@ -362,7 +367,9 @@ def create_trip():
                       'available'
                   ))
 
-        trip_id = c.fetchone()['id']
+        conn.commit()
+        c.execute("SELECT lastval()")
+        trip_id = c.fetchone()['lastval']
         conn.commit()
         conn.close()
 
@@ -618,7 +625,9 @@ def create_booking():
                       data.get('birthPlace', '')
                   ))
 
-        booking_id = c.fetchone()['id']
+        conn.commit()
+        c.execute("SELECT lastval()")
+        booking_id = c.fetchone()['lastval']
         conn.commit()
         conn.close()
 
@@ -972,3 +981,8 @@ if __name__ == '__main__':
     logger.info(f"Starting Flask app on port {port}")
     
     app.run(host="0.0.0.0", port=port, debug=False)
+else:
+    # For production servers (Render)
+    init_db()
+    gunicorn_app = app
+    # Note: gunicorn_app is not used but kept for compatibility

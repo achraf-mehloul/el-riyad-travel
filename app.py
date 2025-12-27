@@ -370,7 +370,6 @@ def create_trip():
         conn.commit()
         c.execute("SELECT lastval()")
         trip_id = c.fetchone()['lastval']
-        conn.commit()
         conn.close()
 
         return jsonify({
@@ -558,6 +557,7 @@ def create_booking():
 
         for field in required_fields:
             if field not in data:
+                logger.error(f"Missing field: {field}, All data: {data}")
                 return jsonify({'error': f'Missing required field: {field}'}), 400
 
         conn = get_db()
@@ -628,7 +628,6 @@ def create_booking():
         conn.commit()
         c.execute("SELECT lastval()")
         booking_id = c.fetchone()['lastval']
-        conn.commit()
         conn.close()
 
         return jsonify({
